@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import Image from 'next/image';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPosts } from '../redux/slices/postSlice';
+import { fetchUserPosts } from '../../redux/slices/postSlice';
 import MasonryLayout from './MasonryLayout';
 
 const UserPage = ({ userId }) => {
@@ -11,7 +11,7 @@ const UserPage = ({ userId }) => {
   const { currentUser } = useSelector(state => state.user);
 
   useEffect(() => {
-    dispatch(fetchPosts(userId));
+    dispatch(fetchUserPosts(userId));
   }, [dispatch, userId]);
 
   if (loading) return <div>Loading...</div>;

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPosts, addComment } from '../redux/slices/postSlice';
+import { fetchCategoryPosts, addComment } from '../../redux/slices/postSlice';
 import CommentPin from './CommentPin';
 
 const PinDetails = ({ postId }) => {
@@ -13,7 +13,7 @@ const PinDetails = ({ postId }) => {
 
   useEffect(() => {
     if (postId) {
-      dispatch(fetchPosts(postId));
+      dispatch(fetchCategoryPosts(postId));
     }
   }, [dispatch, postId]);
 

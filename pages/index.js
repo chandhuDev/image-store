@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchPosts } from "../redux/slices/postSlice"; // Updated import
+import { fetchAllPosts } from "../redux/slices/postSlice"; // Updated import
 import ImageGrid from "../components/Home/ImageGrid";
 import UploadModal from "../components/Home/UploadModal";
 import Spinner from "../components/Home/Spinner";
@@ -10,7 +10,7 @@ export default function Home() {
   const { posts, loading } = useSelector((state) => state.posts);
 
   useEffect(() => {
-    dispatch(fetchPosts());
+    dispatch(fetchAllPosts());
   }, [dispatch]);
 
   if (loading) return <Spinner message="Rendering the page"/>;

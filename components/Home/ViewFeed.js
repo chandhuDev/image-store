@@ -1,31 +1,32 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPins } from '../redux/slices/pinSlice';
-import Pin from './Pin';
+import { searchPosts } from '../../redux/slices/postSlice';
+import MasonryLayout from './MasonryLayout';
 import Spinner from './Spinner';
 
 const ViewFeed = ({ searchTerm }) => {
-  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
-  const { pins } = useSelector(state => state.pins);
+  const { posts, loading } = useSelector(state => state.posts);
 
   useEffect(() => {
-    setLoading(true);
-    dispatch(fetchPins(searchTerm)).finally(() => {
-      setLoading(false);
-    });
+    if (searchTerm) {
+      // If we need to implement search, we can add a search parameter to fetchPosts
+      dispatch(searchPosts({ search: searchTerm }));
+    }
   }, [dispatch, searchTerm]);
 
-  if (loading) return <Spinner message="Searching for pins..." />;
-
-  if (!pins?.length) return <h2>No pins found</h2>;
+  if (loading) return <Spinner />;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6">
-      {pins.map((pin) => (
-        <Pin key={pin._id} pin={pin} />
-      ))}
+    <div>
+      {posts?.length > 0 ? (
+        <MasonryLayout posts={posts} />
+      ) : (
+        <div className="flex justify-center font-bold items-center w-full text-xl mt-2">
+          No Posts Found!
+        </div>
+      )}
     </div>
   );
 };
