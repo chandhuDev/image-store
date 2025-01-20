@@ -1,45 +1,67 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const userLogin = createAsyncThunk(
-  'user/login',
+  "user/login",
   async (credentials, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(`${API_URL}/auth/login`, credentials);
-      localStorage.setItem('token', data.token);
-      return data.user;
+      const { data } = await axios.post(
+        `${API_URL}/api/auth/login`,
+        credentials
+      );
+
+      if (!data.success) {
+        return rejectWithValue(data.message);
+      }
+
+      localStorage.setItem("token", data.token);
+      document.cookie = `token=${data.token}; path=/`;
     } catch (error) {
-      return rejectWithValue(error.response.data.message);
+      return rejectWithValue(
+        error.response?.data?.message || "Login failed. Please try again."
+      );
     }
   }
 );
 
 export const userSignup = createAsyncThunk(
-  'user/signup',
+  "user/signup",
   async (userData, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(`${API_URL}/auth/signup`, userData);
-      localStorage.setItem('token', data.token);
-      return data.user;
+      const { data } = await axios.post(`${API_URL}/api/auth/signup`, userData);
+
+      if (!data.success) {
+        return rejectWithValue(data.message);
+      }
+
+      localStorage.setItem("token", data.token);
+      document.cookie = `token=${data.token}; path=/`;
     } catch (error) {
-      return rejectWithValue(error.response.data.message);
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Registration failed. Please try again."
+      );
     }
   }
 );
 
 const userSlice = createSlice({
-  name: 'user',
+  name: "user",
   initialState: {
-    currentUser: null,
+    currentUser: null, // Initialize from storage
     loading: false,
     error: null,
   },
   reducers: {
     logout: (state) => {
       state.currentUser = null;
-      localStorage.removeItem('token');
+      localStorage.removeItem("token");
+      document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+    },
+    setUser: (state, action) => {
+      state.currentUser = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -51,6 +73,7 @@ const userSlice = createSlice({
       .addCase(userLogin.fulfilled, (state, action) => {
         state.loading = false;
         state.currentUser = action.payload;
+        state.error = null;
       })
       .addCase(userLogin.rejected, (state, action) => {
         state.loading = false;
@@ -63,6 +86,7 @@ const userSlice = createSlice({
       .addCase(userSignup.fulfilled, (state, action) => {
         state.loading = false;
         state.currentUser = action.payload;
+        state.error = null;
       })
       .addCase(userSignup.rejected, (state, action) => {
         state.loading = false;
@@ -71,5 +95,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { logout } = userSlice.actions;
+export const { logout, setUser } = userSlice.actions;
 export default userSlice.reducer;

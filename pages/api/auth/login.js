@@ -1,5 +1,5 @@
 import { connectDB } from '../../../utils/db';
-import User from '../../../models/User';
+import User from '../../../models/userSchema';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
@@ -8,31 +8,48 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  await connectDB();
-
   try {
+    await connectDB();
     const { email, password } = req.body;
 
-    // Find user
-    const user = await User.findOne({ email }).select('+password');
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+    if (!email || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Please provide email and password' 
+      });
     }
 
-    // Check password
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'User not found. Please register first.' 
+      });
+    }
+
+    if (!user.password) {
+      return res.status(500).json({ 
+        success: false, 
+        message: 'User account is not properly set up' 
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Invalid password' 
+      });
     }
 
-    // Create token
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET,
       { expiresIn: '30d' }
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       token,
       user: {
@@ -42,8 +59,13 @@ export default async function handler(req, res) {
         image: user.image
       }
     });
+
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Server Error' });
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Server error during login',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 }
