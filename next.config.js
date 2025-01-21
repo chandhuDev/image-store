@@ -4,6 +4,14 @@ const nextConfig = {
   images: {
     domains: ["res.cloudinary.com"], // Add your image domains here
   },
+  api: {
+    responseLimit: false,
+    bodyParser: false,
+  },
+  webpack: (config) => {
+    config.experiments = { ...config.experiments, topLevelAwait: true };
+    return config;
+  },
   env: {
     JWT_SECRET: process.env.JWT_SECRET,
     MONGODB_SECRET_KEY: process.env.MONGODB_SECRET_KEY,

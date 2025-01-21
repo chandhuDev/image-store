@@ -10,9 +10,8 @@ export default async function handler(req, res) {
     // GET single post
     if (req.method === 'GET') {
       const post = await Post.findById(postId)
-        .populate('userId', 'username profileImage')
-        .populate('categoryId', 'category')
-        .populate('comment');
+        .populate('userId')
+        .populate('categoryId')
 
       if (!post) {
         return res.status(404).json({ message: 'Post not found' });
@@ -21,22 +20,6 @@ export default async function handler(req, res) {
       return res.status(200).json(post);
     }
 
-    // DELETE post
-    if (req.method === 'DELETE') {
-      const post = await Post.findById(postId);
-
-      if (!post) {
-        return res.status(404).json({ message: 'Post not found' });
-      }
-
-      // Optional: Check if user is authorized to delete
-      // if (post.userId.toString() !== req.user.id) {
-      //   return res.status(401).json({ message: 'Not authorized' });
-      // }
-
-      await Post.findByIdAndDelete(postId);
-      return res.status(200).json({ message: 'Post deleted successfully' });
-    }
 
     // UPDATE post
     if (req.method === 'PUT') {
@@ -53,8 +36,8 @@ export default async function handler(req, res) {
           runValidators: true // Run model validators
         }
       )
-      .populate('userId', 'username profileImage')
-      .populate('categoryId', 'category')
+      .populate('userId')
+      .populate('categoryId')
       .populate('comment');
 
       if (!updatedPost) {

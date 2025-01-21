@@ -1,4 +1,3 @@
-// redux/slices/uploadSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
@@ -8,14 +7,17 @@ export const uploadFile = createAsyncThunk(
   'upload/file',
   async (formData, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(`${API_URL}/api/upload`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return data;
+      const { data } = await axios.post(`${API_URL}/api/upload`, formData);
+      
+      if (!data.success) {
+        return rejectWithValue(data.message);
+      }
+
+      return data; // Will include url and public_id
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Upload failed');
+      return rejectWithValue(
+        error.response?.data?.message || 'Upload failed'
+      );
     }
   }
 );

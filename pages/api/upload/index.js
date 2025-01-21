@@ -1,6 +1,7 @@
-import { connectDB } from '../../../utils/db';
-import formidable from 'formidable';
-import cloudinary from '../../../utils/cloudinary';
+// pages/api/upload/index.js
+import { v2 as cloudinary } from 'cloudinary';
+import fileUpload from 'express-fileupload';
+import fs from 'fs';
 
 export const config = {
   api: {
@@ -8,34 +9,56 @@ export const config = {
   },
 };
 
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const fileUploadMiddleware = fileUpload({
+  useTempFiles: true,
+  tempFileDir: '/tmp/'
+});
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  try {
-    await connectDB();
-    const form = new formidable.IncomingForm();
-
-    form.parse(req, async (err, fields, files) => {
-      if (err) {
-        return res.status(500).json({ message: 'Error parsing form data' });
-      }
-
-      try {
-        const uploadedImage = await cloudinary.uploader.upload(files.file.filepath, {
-          folder:`/imageEcommerce/postImages/${req.body.category}`,
-        });
-
-        res.status(200).json({
-          url: uploadedImage.secure_url,
-          public_id: uploadedImage.public_id,
-        });
-      } catch (error) {
-        res.status(500).json({ message: 'Error uploading to cloudinary' });
-      }
+  await new Promise((resolve, reject) => {
+    fileUploadMiddleware(req, res, (err) => {
+      if (err) reject(err);
+      resolve();
     });
+  });
+
+  try {
+    const uploadedFile = req.files.postImage.tempFilePath;
+    
+    if (!uploadedFile) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    const result = await cloudinary.uploader.upload(uploadedFile, {
+      folder: `imageEcommerce/postImages/${req.body.category}`,
+      resource_type: 'auto',
+    });
+
+    // Clean up temp file
+    fs.unlinkSync(uploadedFile);
+
+    return res.status(200).json({
+      success: true,
+      url: result.secure_url,
+      public_id: result.public_id
+    });
+
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('Upload error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Upload failed',
+      error: error.message
+    });
   }
 }

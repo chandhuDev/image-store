@@ -6,21 +6,19 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
-      const posts = await Post.find()
-        .populate('userId', 'username profileImage')
-        .populate('categoryId', 'category')
-        .populate('comment')
-        .sort({ createdAt: -1 });
-      
+      const posts = await Post.find().sort({ createdAt: -1 });
+
       res.status(200).json(posts);
     } catch (error) {
       res.status(500).json({ message: 'Error fetching posts' });
     }
-  } 
+  }
   else if (req.method === 'POST') {
     try {
       const { description, categoryId, userId, imageUrl } = req.body;
 
+
+      console.log(userId, imageUrl, categoryId)
       const newPost = new Post({
         description,
         categoryId,
@@ -33,15 +31,15 @@ export default async function handler(req, res) {
       await newPost.save();
 
       const populatedPost = await Post.findById(newPost._id)
-        .populate('userId', 'username profileImage')
-        .populate('categoryId', 'category')
-        .populate('comment');
+        .populate('userId')   
+        .populate('categoryId') 
+        .populate('comment')
 
       res.status(201).json(populatedPost);
     } catch (error) {
       res.status(500).json({ message: 'Error creating post' });
     }
-  } 
+  }
   else {
     res.status(405).json({ message: 'Method not allowed' });
   }

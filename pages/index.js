@@ -6,7 +6,6 @@ import Layout from "../components/Home/Layout";
 import ImageGrid from "../components/Home/ImageGrid";
 import Spinner from "../components/Home/Spinner";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export async function getServerSideProps(context) {
   const { req } = context;
   const token = req.cookies.token;
@@ -19,28 +18,14 @@ export async function getServerSideProps(context) {
       },
     };
   }
-  try {
-    const response = await fetch(`${API_URL}/api/posts`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const posts = await response.json();
 
-    return {
-      props: {
-        initialPosts: posts,
-      },
-    };
-  } catch (error) {
-    return {
-      props: {
-        initialPosts: [],
-        error: "Failed to fetch posts",
-      },
-    };
+  return {
+    props: {},
   }
+  
 }
 
-export default function Home({ initialPosts }) {
+export default function Home() {
   const dispatch = useDispatch();
   const { posts, loading, error } = useSelector((state) => state.posts);
 

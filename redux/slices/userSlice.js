@@ -18,6 +18,8 @@ export const userLogin = createAsyncThunk(
 
       localStorage.setItem("token", data.token);
       document.cookie = `token=${data.token}; path=/`;
+
+      return data.user
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Login failed. Please try again."
@@ -38,6 +40,8 @@ export const userSignup = createAsyncThunk(
 
       localStorage.setItem("token", data.token);
       document.cookie = `token=${data.token}; path=/`;
+
+      return data.user
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message ||

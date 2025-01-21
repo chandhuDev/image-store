@@ -7,6 +7,26 @@ import { toast } from "react-toastify";
 import { userSignup } from "../../redux/slices/userSlice";
 import LoadingSpinner from "../../components/Home/Spinner";
 
+
+export async function getServerSideProps(context) {
+  const { req } = context;
+  const token = req.cookies.token;
+
+  if (token) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {}
+  }
+  
+}
+
 const Signup = () => {
   const [formData, setFormData] = useState({
     name: "",
