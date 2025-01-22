@@ -5,8 +5,8 @@ export function middleware(request) {
   const token = request.cookies.get('token');
 
   if (!token && 
-      (request.nextUrl.pathname.startsWith('/api/protected') || 
-       request.nextUrl.pathname.startsWith('/dashboard'))) {
+      (request.nextUrl.pathname.startsWith('/api') || 
+       request.nextUrl.pathname.startsWith('/'))) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
