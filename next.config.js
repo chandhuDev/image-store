@@ -12,6 +12,9 @@ const nextConfig = {
     config.experiments = { ...config.experiments, topLevelAwait: true };
     return config;
   },
+  experimental: {
+    disableOptimizedLoading: true, // Disable automatic prefetch
+  },
   env: {
     JWT_SECRET: process.env.JWT_SECRET,
     MONGODB_SECRET_KEY: process.env.MONGODB_SECRET_KEY,
