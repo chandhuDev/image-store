@@ -2,8 +2,8 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCategoryPosts, addComment } from "@/redux/slices/postSlice";
-import CommentPin from "@/components/Home/CommentPin";
+import { fetchCategoryPosts, addComment } from "../../redux/slices/postSlice";
+import CommentPin from "./CommentPin";
 
 const PinDetails = ({ postId }) => {
   const [commentText, setCommentText] = useState("");

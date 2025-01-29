@@ -1,8 +1,8 @@
 "use client"
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { uploadFile } from "@/redux/slices/uploadSlice";
-import { createPost } from "@/redux/slices/postSlice";
+import { uploadFile } from "../../redux/slices/uploadSlice";
+import { createPost } from "../../redux/slices/postSlice";
 
 const UploadModal = ({ isOpen, onClose }) => {
   const [file, setFile] = useState(null);

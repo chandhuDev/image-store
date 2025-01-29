@@ -6,11 +6,11 @@ import Image from "next/image";
 import { RiHomeFill } from "react-icons/ri";
 import { AiOutlineMenu } from "react-icons/ai";
 import { useSelector } from "react-redux";
-import nature from "@/assets/nature.jpg";
-import animal from "@/assets/animal.jpg";
-import travel from "@/assets/travel.webp";
-import user from "@/assets/user.png";
-import textures from "@/assets/textures.webp";
+import nature from "../../assets/nature.jpg";
+import animal from "../../assets/animal.jpg";
+import travel from "../../assets/travel.webp";
+import user from "../../assets/user.png";
+import textures from "../../assets/textures.webp";
 
 const Sidebar = ({ closeToggle }) => {
   const { currentUser } = useSelector((state) => state.user);
@@ -74,14 +74,7 @@ const Sidebar = ({ closeToggle }) => {
             className="flex my-5 mb-3 gap-2 p-2 items-center bg-white rounded-lg shadow-lg mx-3"
             onClick={handleCloseSidebar}
           >
-            <div className="relative w-10 h-10">
-              <Image
-                src={currentUser.profileImage || "/default-avatar.png"}
-                alt="user-profile"
-                fill
-                className="rounded-full"
-              />
-            </div>
+            
             <p>{currentUser.username}</p>
           </Link>
         

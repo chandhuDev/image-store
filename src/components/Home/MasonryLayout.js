@@ -1,5 +1,5 @@
 import Masonry from "react-masonry-css";
-import Pin from "@/components/Home/Pin";
+import Pin from "./Pin";
 
 const MasonryLayout = ({ pins }) => {
   const breakpointObj = {

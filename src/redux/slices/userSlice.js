@@ -10,27 +10,6 @@ const getStoredToken = () => {
   return null;
 };
 
-export const checkAuthStatus = createAsyncThunk(
-  "user/checkAuth",
-  async (_, { rejectWithValue }) => {
-    try {
-      const token = getStoredToken();
-      if (!token) return null;
-
-      const { data } = await axios.get(`${API_URL}/api/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      return data.user;
-    } catch (error) {
-      // Clear invalid token
-      localStorage.removeItem("token");
-      document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
-      return rejectWithValue(error.response?.data?.message);
-    }
-  }
-);
-
 export const userLogin = createAsyncThunk(
   "user/login",
   async (credentials, { rejectWithValue }) => {
@@ -84,7 +63,10 @@ export const userSignup = createAsyncThunk(
 const userSlice = createSlice({
   name: "user",
   initialState: {
-    currentUser: typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user')) : null,
+    currentUser:
+      typeof window !== "undefined"
+        ? JSON.parse(localStorage.getItem("user"))
+        : null,
     loading: false,
     error: null,
   },
@@ -125,17 +107,6 @@ const userSlice = createSlice({
       .addCase(userSignup.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
-      .addCase(checkAuthStatus.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(checkAuthStatus.fulfilled, (state, action) => {
-        state.currentUser = action.payload;
-        state.loading = false;
-      })
-      .addCase(checkAuthStatus.rejected, (state) => {
-        state.currentUser = null;
-        state.loading = false;
       });
   },
 });

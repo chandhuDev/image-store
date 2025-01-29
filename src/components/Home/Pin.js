@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -65,15 +65,7 @@ const Pin = ({ post }) => {
       {post.userId && (
         <Link href={`/post/${post.userId}`}>
           <div className="flex gap-2 mt-2 items-center">
-            <div className="relative w-8 h-8">
-              <Image
-                src={post.userId.profileImage || "/default-avatar.png"} // Updated to match schema
-                alt="user-profile"
-                fill
-                className="rounded-full object-cover"
-              />
-            </div>
-            <p className="font-semibold capitalize">{post.userId.username}</p>
+           {post.description &&  <p className="font-semibold capitalize">{post.description}</p> }
           </div>
         </Link>
       )}

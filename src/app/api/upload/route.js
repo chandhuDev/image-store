@@ -1,8 +1,10 @@
 // app/api/upload/route.js
 import { NextResponse } from 'next/server';
 import { v2 as cloudinary } from "cloudinary";
-import { writeFile } from 'fs/promises';
+import { writeFile, mkdir, unlink } from 'fs/promises';
 import { join } from 'path';
+import { existsSync } from 'fs';
+import os from 'os';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -23,33 +25,51 @@ export async function POST(request) {
       );
     }
 
+    // Use OS temp directory instead of project directory
+    const tmpDir = join(os.tmpdir(), 'app-uploads');
+
+    // Create temp directory if it doesn't exist
+    if (!existsSync(tmpDir)) {
+      await mkdir(tmpDir, { recursive: true });
+    }
+
     // Create buffer from file
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create unique filename
+    // Create unique filename with sanitization
     const timestamp = Date.now();
-    const filename = `upload-${timestamp}-${file.name}`;
-    const filepath = join(process.cwd(), 'uploads', filename);
+    const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const filename = `upload-${timestamp}-${sanitizedFilename}`;
+    const filepath = join(tmpDir, filename);
 
-    // Write file to uploads directory
-    await writeFile(filepath, buffer);
+    try {
+      // Write file to temp directory
+      await writeFile(filepath, buffer);
 
-    // Upload to Cloudinary
-    const result = await cloudinary.uploader.upload(filepath, {
-      folder: `imageEcommerce/postImages/${category}`,
-      resource_type: "auto",
-      timeout: 60000,
-    });
+      // Upload to Cloudinary
+      const result = await cloudinary.uploader.upload(filepath, {
+        folder: `imageEcommerce/postImages/${category}`,
+        resource_type: "auto",
+        timeout: 60000,
+      });
 
-    // Delete the temporary file
-    await unlink(filepath).catch(console.error);
+      // Clean up: Delete the temporary file
+      await unlink(filepath).catch(console.error);
 
-    return NextResponse.json({
-      success: true,
-      url: result.secure_url,
-      public_id: result.public_id,
-    }, { status: 200 });
+      return NextResponse.json({
+        success: true,
+        url: result.secure_url,
+        public_id: result.public_id,
+      }, { status: 200 });
+
+    } catch (error) {
+      // Clean up on error
+      if (existsSync(filepath)) {
+        await unlink(filepath).catch(console.error);
+      }
+      throw error;
+    }
 
   } catch (error) {
     console.error("Upload error:", error);

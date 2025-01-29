@@ -4,9 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchCategoryPosts,
   fetchAllPosts,
-} from "@/redux/slices/postSlice";
-import MasonryLayout from "@/components/Home/MasonryLayout";
-import Spinner from "@/components/Home/Spinner";
+} from "../../redux/slices/postSlice";
+import MasonryLayout from "./MasonryLayout";
+import Spinner from "./Spinner";
 
 const Feed = ({ categoryId }) => {
   const dispatch = useDispatch();

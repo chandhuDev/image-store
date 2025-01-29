@@ -1,9 +1,9 @@
 "use client"
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { searchPosts } from "@/redux/slices/postSlice";
-import MasonryLayout from "@/components/Home/MasonryLayout";
-import Spinner from "@/components/Home/Spinner";
+import { searchPosts } from "../../redux/slices/postSlice";
+import MasonryLayout from "./MasonryLayout";
+import Spinner from "./Spinner";
 
 const ViewFeed = ({ searchTerm }) => {
   const dispatch = useDispatch();

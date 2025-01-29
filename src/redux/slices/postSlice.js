@@ -24,7 +24,7 @@ export const fetchUserPosts = createAsyncThunk(
   "posts/fetchByUser",
   async (userId, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${API_URL}/api/posts/user/${userId}`);
+      const { data } = await axios.get(`${API_URL}/api/posts?userId=${userId}`);
       return data;
     } catch (error) {
       return rejectWithValue(
@@ -40,7 +40,7 @@ export const fetchCategoryPosts = createAsyncThunk(
   async (categoryId, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(
-        `${API_URL}/api/posts/category/${categoryId}`
+        `${API_URL}/api/posts?categoryId=${categoryId}`
       );
       return data;
     } catch (error) {
@@ -56,7 +56,7 @@ export const fetchPostById = createAsyncThunk(
   "posts/fetchById",
   async (postId, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${API_URL}/api/posts/${postId}`);
+      const { data } = await axios.get(`${API_URL}/api/posts?postId=${postId}`);
       return data;
     } catch (error) {
       return rejectWithValue(
@@ -88,18 +88,27 @@ export const createPost = createAsyncThunk(
   "posts/create",
   async (postData, { rejectWithValue }) => {
     try {
-      const { data } = await fetch(`${API_URL}/api/posts`, {
-        method: 'POST',
+      const response = await fetch(`${API_URL}/api/posts`, {
+        method: "POST",
+        body: JSON.stringify({
+          description: postData.description,
+          categoryId: postData.categoryId,
+          userId: postData.userId,
+          imageUrl: postData.imageUrl,
+        }),
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(postData)
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to create post");
+      }
+
+      const data = await response.json();
       return data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Error creating post"
-      );
+      return rejectWithValue(error.message || "Error creating post");
     }
   }
 );
@@ -109,7 +118,7 @@ export const likePost = createAsyncThunk(
   "posts/like",
   async ({ postId, userId }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.put(`${API_URL}/api/posts/${postId}/like`, {
+      const { data } = await axios.put(`${API_URL}/api/posts/like?postId=${postId}`, {
         userId,
       });
       return data;
@@ -121,6 +130,7 @@ export const likePost = createAsyncThunk(
   }
 );
 
+// Add comment to post
 export const addComment = createAsyncThunk(
   "posts/addComment",
   async ({ postId, comment }, { rejectWithValue }) => {
@@ -129,11 +139,10 @@ export const addComment = createAsyncThunk(
       const commentData = {
         text: comment.text,
         name: comment.name,
-        image: comment.image,
-      };
+    };
 
       const { data } = await axios.post(
-        `${API_URL}/api/posts/${postId}/comment`,
+        `${API_URL}/api/posts/comment?postId=${postId}`,
         commentData
       );
       return {
@@ -148,14 +157,17 @@ export const addComment = createAsyncThunk(
   }
 );
 
+// Delete post
 export const deletePost = createAsyncThunk(
-  'posts/delete',
+  "posts/delete",
   async (postId, { rejectWithValue }) => {
     try {
       await axios.delete(`${API_URL}/api/posts/${postId}`);
       return postId; // Return postId to remove it from state
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Error deleting post');
+      return rejectWithValue(
+        error.response?.data?.message || "Error deleting post"
+      );
     }
   }
 );
@@ -262,8 +274,11 @@ const postSlice = createSlice({
       })
       .addCase(createPost.fulfilled, (state, action) => {
         state.loading = false;
-        state.allPosts.unshift(action.payload);
-        state.userPosts.unshift(action.payload);
+        const newPost = action.payload.data;
+        if (newPost) {
+          state.allPosts = [newPost, ...state.allPosts];
+          state.userPosts = [newPost, ...state.userPosts];
+        }
       })
       .addCase(createPost.rejected, (state, action) => {
         state.loading = false;
@@ -325,11 +340,19 @@ const postSlice = createSlice({
       .addCase(deletePost.fulfilled, (state, action) => {
         state.loading = false;
         // Remove post from all lists
-        state.allPosts = state.allPosts.filter(post => post._id !== action.payload);
-        state.userPosts = state.userPosts.filter(post => post._id !== action.payload);
-        state.categoryPosts = state.categoryPosts.filter(post => post._id !== action.payload);
-        state.searchResults = state.searchResults.filter(post => post._id !== action.payload);
-        
+        state.allPosts = state.allPosts.filter(
+          (post) => post._id !== action.payload
+        );
+        state.userPosts = state.userPosts.filter(
+          (post) => post._id !== action.payload
+        );
+        state.categoryPosts = state.categoryPosts.filter(
+          (post) => post._id !== action.payload
+        );
+        state.searchResults = state.searchResults.filter(
+          (post) => post._id !== action.payload
+        );
+
         // Clear currentPost if it's the deleted one
         if (state.currentPost?._id === action.payload) {
           state.currentPost = null;

@@ -1,9 +1,8 @@
-import { useState } from "react";
 import Link from "next/link";
 import { MdDownloadForOffline } from "react-icons/md";
 import { AiTwotoneDelete } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
-import { deletePost, likePost } from "@/redux/slices/postSlice";
+import { deletePost, likePost } from "../../redux/slices/postSlice";
 
 const PinBar = ({ post }) => {
   const dispatch = useDispatch();

@@ -56,8 +56,8 @@ const CreatePin = () => {
         throw new Error("Upload failed");
       }
 
-      // Create post with image URL
-      await dispatch(
+       // Create post with image URL
+     const result= await dispatch(
         createPost({
           description,
           categoryId: category,
@@ -66,8 +66,13 @@ const CreatePin = () => {
         })
       ).unwrap();
 
-      toast.success("Post created successfully!");
-      router.push("/");
+      if (result.success) {
+        toast.success("Post created successfully!");
+        setTimeout(() => {
+          router.push("/");
+          router.refresh();
+        }, 100);
+      }
     } catch (error) {
       console.error("Post creation failed:", error);
       toast.error(error.message || "Failed to create post");
@@ -76,7 +81,13 @@ const CreatePin = () => {
     }
   };
 
-  if (loading) return <Spinner />;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col justify-center items-center mt-5 lg:h-4/5">
