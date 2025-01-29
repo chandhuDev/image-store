@@ -1,3 +1,4 @@
+"use client"
 import Masonry from "react-masonry-css";
 import Pin from "./Pin";
 

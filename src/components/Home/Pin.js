@@ -19,7 +19,7 @@ const Pin = ({ post }) => {
       dispatch(
         likePost({
           postId: post._id,
-          userId: currentUser._id.toString(),
+          userId: currentUser.id,
         })
       );
     }
@@ -49,7 +49,7 @@ const Pin = ({ post }) => {
                 <button
                   onClick={handleLike}
                   className={`flex items-center gap-1 ${
-                    post.like.includes(currentUser?._id.toString())
+                    post.like.includes(currentUser.id)
                       ? "text-red-500"
                       : "text-black"
                   }`}

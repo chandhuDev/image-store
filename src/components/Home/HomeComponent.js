@@ -1,8 +1,8 @@
 // components/Home/HomeComponent.js
-'use client';
+"use client";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import { fetchAllPosts } from "../../redux/slices/postSlice";
 import Layout from "./Layout";
 import ImageGrid from "./ImageGrid";
@@ -32,9 +32,7 @@ export default function HomeComponent() {
           )}
 
           {error && (
-            <div className="text-red-500 text-center mb-8">
-              {error}
-            </div>
+            <div className="text-red-500 text-center mb-8">{error}</div>
           )}
 
           {!loading && !error && (!allPosts || allPosts.length === 0) && (

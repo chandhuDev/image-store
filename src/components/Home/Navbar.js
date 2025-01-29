@@ -1,3 +1,4 @@
+"use client"
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -19,7 +20,7 @@ const Navbar = () => {
               router.push(`/search/${e.target.value}`);
             }
           }}
-          placeholder="Search"
+          placeholder="Search by description.."
           className="p-2 w-full bg-white outline-none"
         />
       </div>

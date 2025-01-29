@@ -1,5 +1,5 @@
 // components/Layout.js
-"use client"
+"use client";
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -12,7 +12,7 @@ import travel from "../../assets/travel.webp";
 import user from "../../assets/user.png";
 import textures from "../../assets/textures.webp";
 
-const Sidebar = ({ closeToggle }) => {
+const Sidebar = () => {
   const { currentUser } = useSelector((state) => state.user);
   const categories = [
     { name: "Nature", image: nature },
@@ -22,18 +22,10 @@ const Sidebar = ({ closeToggle }) => {
     { name: "Textures", image: textures },
   ];
 
-  const handleCloseSidebar = () => {
-    if (closeToggle) closeToggle(false);
-  };
-
   return (
     <div className="flex flex-col justify-between bg-white h-full overflow-y-scroll shadow-2xl min-w-210 hide-scrollbar">
       <div className="flex flex-col">
-        <Link
-          href="/"
-          className="flex px-5 gap-2 my-6 pt-1 w-190 items-center"
-          onClick={handleCloseSidebar}
-        >
+        <Link href="/" className="flex px-5 gap-2 my-6 pt-1 w-190 items-center">
           <RiHomeFill />
           <span>Home</span>
         </Link>
@@ -43,10 +35,10 @@ const Sidebar = ({ closeToggle }) => {
           </h3>
           {categories.map((category) => (
             <Link
-              href={`/category/${category.name.toLowerCase()}`}
+              href={`${category.name === "User" ? '/user' : `/category/${category.name.toLowerCase()}`}`}
               key={category.name}
               className="flex items-center gap-3 hover:bg-gray-100 transition-all duration-200 ease-in-out capitalize px-5 py-3"
-              onClick={handleCloseSidebar}
+             
             >
               <div className="relative w-8 h-8">
                 <Image
@@ -59,26 +51,22 @@ const Sidebar = ({ closeToggle }) => {
               {category.name}
             </Link>
           ))}
-            <Link
+          <Link
             href="/create"
             className="flex items-center gap-3 hover:bg-gray-100 transition-all duration-200 ease-in-out capitalize px-5 py-3"
-            >
+          >
             Create Post
           </Link>
         </div>
       </div>
       {currentUser && (
-        
-          <Link
-            href={`/post/${currentUser._id}`}
-            className="flex my-5 mb-3 gap-2 p-2 items-center bg-white rounded-lg shadow-lg mx-3"
-            onClick={handleCloseSidebar}
-          >
-            
-            <p>{currentUser.username}</p>
-          </Link>
-        
-        
+        <Link
+          href={`/post/${currentUser.id}`}
+          className="flex my-5 mb-3 gap-2 p-2 items-center bg-white rounded-lg shadow-lg mx-3"
+         
+        >
+          <p>{currentUser.username}</p>
+        </Link>
       )}
     </div>
   );

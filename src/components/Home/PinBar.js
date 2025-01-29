@@ -1,3 +1,4 @@
+"use client"
 import Link from "next/link";
 import { MdDownloadForOffline } from "react-icons/md";
 import { AiTwotoneDelete } from "react-icons/ai";

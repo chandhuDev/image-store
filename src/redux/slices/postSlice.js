@@ -37,12 +37,23 @@ export const fetchUserPosts = createAsyncThunk(
 // Fetch posts by categoryId
 export const fetchCategoryPosts = createAsyncThunk(
   "posts/fetchByCategory",
-  async (categoryId, { rejectWithValue }) => {
+  async (categoryName, { rejectWithValue, getState }) => {
     try {
       const { data } = await axios.get(
-        `${API_URL}/api/posts?categoryId=${categoryId}`
+        `${API_URL}/api/posts?categoryId=${categoryName}`
       );
-      return data;
+
+      // Get current state
+      const state = getState();
+      const existingPosts = state.posts.categoryPosts;
+
+      // Filter out duplicates if needed
+      const newPosts = data.data; // Access the data property from the response
+      const uniquePosts = newPosts.filter(
+        newPost => !existingPosts.some(existing => existing._id === newPost._id)
+      );
+
+      return uniquePosts;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Error fetching category posts"
@@ -232,7 +243,7 @@ const postSlice = createSlice({
       })
       .addCase(fetchCategoryPosts.fulfilled, (state, action) => {
         state.loading = false;
-        state.categoryPosts = action.payload;
+        state.categoryPosts = [...state.categoryPosts, ...action.payload];
       })
       .addCase(fetchCategoryPosts.rejected, (state, action) => {
         state.loading = false;
