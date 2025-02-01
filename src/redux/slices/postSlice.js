@@ -50,7 +50,8 @@ export const fetchCategoryPosts = createAsyncThunk(
       // Filter out duplicates if needed
       const newPosts = data.data; // Access the data property from the response
       const uniquePosts = newPosts.filter(
-        newPost => !existingPosts.some(existing => existing._id === newPost._id)
+        (newPost) =>
+          !existingPosts.some((existing) => existing._id === newPost._id)
       );
 
       return uniquePosts;
@@ -68,7 +69,7 @@ export const fetchPostById = createAsyncThunk(
   async (postId, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(`${API_URL}/api/posts?postId=${postId}`);
-      return data;
+      return data.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Error fetching post"
@@ -129,9 +130,12 @@ export const likePost = createAsyncThunk(
   "posts/like",
   async ({ postId, userId }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.put(`${API_URL}/api/posts/like?postId=${postId}`, {
-        userId,
-      });
+      const { data } = await axios.put(
+        `${API_URL}/api/posts/like?postId=${postId}`,
+        {
+          userId,
+        }
+      );
       return data;
     } catch (error) {
       return rejectWithValue(
@@ -150,7 +154,7 @@ export const addComment = createAsyncThunk(
       const commentData = {
         text: comment.text,
         name: comment.name,
-    };
+      };
 
       const { data } = await axios.post(
         `${API_URL}/api/posts/comment?postId=${postId}`,

@@ -20,9 +20,7 @@ export async function GET(request) {
     if (postId) {
       console.log("server details", postId);
 
-      posts = await Post.findById(postId)
-        .populate("userId", "username")
-        .populate("categoryId", "category");
+      posts = await Post.findById(postId).sort({ createdAt: -1 });
 
       if (!posts) {
         return NextResponse.json(
@@ -35,10 +33,7 @@ export async function GET(request) {
     else if (userId) {
       console.log("server details", userId);
 
-      posts = await Post.find({ userId })
-        .populate("userId", "username")
-        .populate("categoryId", "category")
-        .sort({ createdAt: -1 });
+      posts = await Post.find({ userId }).sort({ createdAt: -1 });
     }
     // Fetch by category ID
     else if (categoryId) {
@@ -55,21 +50,16 @@ export async function GET(request) {
         );
       }
 
-      posts = await Post.find({ categoryId: category._id })
-        .populate("userId", "username")
-        .populate("categoryId", "category")
-        .sort({ createdAt: -1 });
+      posts = await Post.find({ categoryId: category._id }).sort({
+        createdAt: -1,
+      });
     }
     // Fetch all posts if no specific params
     else {
       console.log("server details", userId, postId, categoryId);
 
-      posts = await Post.find()
-        .populate("userId", "username")
-        .populate("categoryId", "category")
-        .sort({ createdAt: -1 });
+      posts = await Post.find().sort({ createdAt: -1 });
     }
-
     return NextResponse.json(
       {
         success: true,

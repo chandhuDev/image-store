@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -31,8 +31,8 @@ const Navbar = () => {
         >
           <IoMdAdd />
         </Link>
-        {currentUser && (
-          <Link href={`/post/${currentUser.id}`}>
+        {currentUser ? (
+          <Link href={`/post/679df41f6b81f15e5767ec23`}>
             <div className="relative w-12 h-12">
               <Image
                 src={currentUser.image}
@@ -42,7 +42,7 @@ const Navbar = () => {
               />
             </div>
           </Link>
-        )}
+        ) : null}
       </div>
     </div>
   );

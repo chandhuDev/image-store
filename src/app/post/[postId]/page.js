@@ -1,14 +1,15 @@
-"use client"
-import { useState, useEffect, useParams } from "react";
+"use client";
+import { useState, useEffect, use } from "react";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
-import { addComment, fetchPostById } from "../../redux/slices/postSlice";
-import CommentPin from "./CommentPin";
+import { addComment, fetchPostById } from "../../../redux/slices/postSlice";
+import CommentPin from "../../../components/Home/CommentPin";
 import Spinner from "../../../components/Home/Spinner";
-import PinBar from "../../../components/Home/PinBar";
+import Pin from "../../../components/Home/Pin";
 
-const PinDetails = () => {
-    const {postId} = useParams()
+const PinDetails = ({ params }) => {
+  const unwrappedParams = use(params);
+  const postId = unwrappedParams.postId;
   const [commentText, setCommentText] = useState("");
   const dispatch = useDispatch();
   const { currentPost, loading } = useSelector((state) => state.posts);
@@ -27,7 +28,7 @@ const PinDetails = () => {
           postId,
           comment: {
             text: commentText,
-            name: currentUser.username
+            name: currentUser.username,
           },
         })
       );
@@ -35,30 +36,32 @@ const PinDetails = () => {
     }
   };
 
-  if (loading) return <Spinner />
+  if (loading) return <Spinner />;
+
+  if (!currentUser) return null;
 
   return (
-    <div className="flex xl:flex-row flex-col bg-white">
-      <div className="relative w-full h-[420px]">
+    <div className="flex py-4 flex-col bg-white">
+      <div className="relative w-full h-[600px]">
         <Image
           src={currentPost.imageUrl}
           alt={currentPost.description}
           fill
-          className="object-cover"
+          className="object-contain"
         />
       </div>
       <div className="w-full p-5 flex-1">
-        <p className="text-xl">{currentPost.description}</p>
+        <p className="text-xl">Description: {currentPost.description}</p>
 
         <div className="mt-6">
           <h2 className="text-2xl font-bold mb-4">Comments</h2>
           <div className="max-h-[400px] overflow-y-auto">
-            {currentPost.comment?.map((comment) => (
+            {currentPost?.comment?.map((comment) => (
               <CommentPin key={comment._id} comment={comment} />
             ))}
           </div>
 
-          {currentUser && (
+          {currentUser ? (
             <div className="mt-6">
               <textarea
                 value={commentText}
@@ -74,10 +77,9 @@ const PinDetails = () => {
                 Add Comment
               </button>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
-      <PinBar post={currentPost}/>
     </div>
   );
 };

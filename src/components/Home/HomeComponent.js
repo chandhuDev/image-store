@@ -1,6 +1,6 @@
 // components/Home/HomeComponent.js
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { fetchAllPosts } from "../../redux/slices/postSlice";
@@ -12,11 +12,16 @@ import ViewFeed from "./ViewFeed";
 export default function HomeComponent() {
   const dispatch = useDispatch();
   const router = useRouter();
+
   const { allPosts, loading, error } = useSelector((state) => state.posts);
 
   useEffect(() => {
     dispatch(fetchAllPosts());
   }, [dispatch]);
+
+  if (loading) {
+    return <Spinner />;
+  }
 
   return (
     <Layout>
@@ -25,18 +30,8 @@ export default function HomeComponent() {
           <h1 className="text-3xl font-bold text-center mb-8">
             Share Your Amazing Images
           </h1>
-          <ViewFeed />
-          {loading && (
-            <div className="w-full flex justify-center">
-              <Spinner />
-            </div>
-          )}
 
-          {error && (
-            <div className="text-red-500 text-center mb-8">{error}</div>
-          )}
-
-          {!loading && !error && (!allPosts || allPosts.length === 0) && (
+          {!allPosts || allPosts.length === 0 ? (
             <div className="flex flex-col items-center justify-center min-h-[400px]">
               <div className="text-gray-500 text-xl text-center mb-4">
                 No posts yet
@@ -51,11 +46,9 @@ export default function HomeComponent() {
                 Create Post
               </button>
             </div>
-          )}
+          ) : null}
 
-          {!loading && !error && allPosts && allPosts.length > 0 && (
-            <ImageGrid posts={allPosts} />
-          )}
+          {allPosts.data?.length > 0 ? <ImageGrid /> : null}
         </div>
       </div>
     </Layout>

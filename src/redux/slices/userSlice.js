@@ -38,10 +38,10 @@ export const userSignup = createAsyncThunk(
         return rejectWithValue(data.message);
       }
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user)); // Store user data
+      localStorage.setItem("imageToken", data.token);
+      localStorage.setItem("imageUser", JSON.stringify(data.user)); // Store user data
 
-      document.cookie = `token=${data.token}; path=/`;
+      document.cookie = `imageToken=${data.token}; path=/`;
 
       return data;
     } catch (error) {
@@ -58,7 +58,7 @@ const userSlice = createSlice({
   initialState: {
     currentUser:
       typeof window !== "undefined"
-        ? JSON.parse(localStorage.getItem("user"))
+        ? JSON.parse(localStorage.getItem("imageUser"))
         : null,
     loading: false,
     error: null,

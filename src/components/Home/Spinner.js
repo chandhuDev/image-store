@@ -1,7 +1,7 @@
 "use client"
 import { ThreeDots } from "react-loader-spinner";
 
-const Spinner = ({ message }) => {
+const Spinner = ({ message = '' }) => {
   return (
     <div className="flex flex-col justify-center items-center w-full h-full">
       <div className="m-5">
@@ -14,7 +14,10 @@ const Spinner = ({ message }) => {
           visible={true}
         />
       </div>
+     {
+      message ? 
       <p className="text-lg text-center px-2">{message}</p>
+     : null} 
     </div>
   );
 };

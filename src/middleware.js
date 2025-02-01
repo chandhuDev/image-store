@@ -1,37 +1,25 @@
-import { NextResponse } from 'next/server'
- 
-export function middleware(request) {
-  // Get the token from cookies
-  const token = request.cookies.get('token')?.value
-  
-  // Public paths that don't require authentication
-  const publicPaths = ['/login', '/signup']
-  
-  // Check if the current path is public
-  const isPublicPath = publicPaths.includes(request.nextUrl.pathname)
+import { NextResponse } from "next/server";
 
-  // Redirect logic
+export function middleware(request) {
+  const token = request.cookies.get("imageToken")?.value;
+
+  const publicPaths = ["/login", "/signup"];
+
+  const isPublicPath = publicPaths.includes(request.nextUrl.pathname);
+
   if (!token && !isPublicPath) {
     if (request.nextUrl.pathname !== "/login") {
       return NextResponse.redirect(new URL("/login", request.url));
     }
   }
-  
 
   if (token && isPublicPath) {
-    // If has token and trying to access login/signup, redirect to dashboard
-    return NextResponse.redirect(new URL('/', request.url))
+    return NextResponse.redirect(new URL("/", request.url));
   }
-  
-  return NextResponse.next()
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    '/',
-    '/create',        
-    '/post/:path*',
-    '/login',
-    '/signup',     
-  ]
-}
+  matcher: ["/", "/create", "/post/:path*", "/login", "/signup"],
+};
