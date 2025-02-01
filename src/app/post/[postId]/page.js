@@ -1,19 +1,22 @@
 "use client"
-import { useState, useEffect } from "react";
+import { useState, useEffect, useParams } from "react";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCategoryPosts, addComment } from "../../redux/slices/postSlice";
+import { addComment, fetchPostById } from "../../redux/slices/postSlice";
 import CommentPin from "./CommentPin";
+import Spinner from "../../../components/Home/Spinner";
+import PinBar from "../../../components/Home/PinBar";
 
-const PinDetails = ({ postId }) => {
+const PinDetails = () => {
+    const {postId} = useParams()
   const [commentText, setCommentText] = useState("");
   const dispatch = useDispatch();
-  const { currentPost } = useSelector((state) => state.posts);
+  const { currentPost, loading } = useSelector((state) => state.posts);
   const { currentUser } = useSelector((state) => state.user);
 
   useEffect(() => {
     if (postId) {
-      dispatch(fetchCategoryPosts(postId));
+      dispatch(fetchPostById(postId));
     }
   }, [dispatch, postId]);
 
@@ -24,8 +27,7 @@ const PinDetails = ({ postId }) => {
           postId,
           comment: {
             text: commentText,
-            name: currentUser.username,
-            image: currentUser.profileImage,
+            name: currentUser.username
           },
         })
       );
@@ -33,7 +35,7 @@ const PinDetails = ({ postId }) => {
     }
   };
 
-  if (!currentPost) return <div>Loading...</div>;
+  if (loading) return <Spinner />
 
   return (
     <div className="flex xl:flex-row flex-col bg-white">
@@ -75,6 +77,7 @@ const PinDetails = ({ postId }) => {
           )}
         </div>
       </div>
+      <PinBar post={currentPost}/>
     </div>
   );
 };

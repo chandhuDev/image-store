@@ -1,14 +1,13 @@
 "use client";
 import { useEffect } from "react";
-import { useParams } from "next/navigation";  // ✅ Use useParams() instead of props
-
+import { useParams } from "next/navigation"; 
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCategoryPosts } from "../../../redux/slices/postSlice";
 import MasonryLayout from "../../../components/Home/MasonryLayout";
 import Spinner from "../../../components/Home/Spinner";
 
 const CategoryPage = () => {
-  const { categoryName } = useParams();  // ✅ Get categoryName dynamically
+  const { categoryName } = useParams();
 
   const dispatch = useDispatch();
   const { categoryPosts, loading } = useSelector((state) => state.posts);
@@ -21,7 +20,7 @@ const CategoryPage = () => {
     }
   }, [categoryName]);
 
-  if (loading && cachedPosts.length === 0) return <Spinner />; // Show spinner only if no cached data
+  if (loading && cachedPosts.length === 0) return <Spinner />;
 
   return (
     <div className="relative pb-2 h-full">

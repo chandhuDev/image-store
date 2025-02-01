@@ -3,13 +3,6 @@ import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-const getStoredToken = () => {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem("token") || null;
-  }
-  return null;
-};
-
 export const userLogin = createAsyncThunk(
   "user/login",
   async (credentials, { rejectWithValue }) => {

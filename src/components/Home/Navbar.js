@@ -32,7 +32,7 @@ const Navbar = () => {
           <IoMdAdd />
         </Link>
         {currentUser && (
-          <Link href={`/post/${currentUser._id}`}>
+          <Link href={`/post/${currentUser.id}`}>
             <div className="relative w-12 h-12">
               <Image
                 src={currentUser.image}

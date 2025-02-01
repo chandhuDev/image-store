@@ -9,14 +9,14 @@ const PinBar = ({ post }) => {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
 
-  const isLiked = currentUser && post.like.includes(currentUser._id.toString());
+  const isLiked = currentUser && post.like.includes(currentUser.id);
 
   const handleLike = () => {
     if (currentUser) {
       dispatch(
         likePost({
           postId: post._id,
-          userId: currentUser._id.toString(),
+          userId: currentUser.id,
         })
       );
     }
@@ -49,7 +49,7 @@ const PinBar = ({ post }) => {
         >
           {post.like?.length || 0} Likes
         </button>
-        {post.userId._id === currentUser?._id && (
+        {post.userId._id === currentUser.id && (
           <button
             type="button"
             onClick={handleDelete}

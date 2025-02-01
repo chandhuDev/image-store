@@ -7,6 +7,7 @@ import { fetchAllPosts } from "../../redux/slices/postSlice";
 import Layout from "./Layout";
 import ImageGrid from "./ImageGrid";
 import Spinner from "./Spinner";
+import ViewFeed from "./ViewFeed";
 
 export default function HomeComponent() {
   const dispatch = useDispatch();
@@ -24,7 +25,7 @@ export default function HomeComponent() {
           <h1 className="text-3xl font-bold text-center mb-8">
             Share Your Amazing Images
           </h1>
-
+          <ViewFeed />
           {loading && (
             <div className="w-full flex justify-center">
               <Spinner />
