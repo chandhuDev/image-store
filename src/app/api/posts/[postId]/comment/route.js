@@ -1,6 +1,7 @@
-import { connectDB } from "../../../../utils/db";
-import Post from "../../../../models/postSchema";
-import Comment from "../../../../models/commentSchema";
+import { connectDB } from "../../../..//../utils/db";
+import Post from "../../../../../models/postSchema";
+import Comment from "../../../../../models/commentSchema";
+import { NextResponse } from "next/server";
 
 export async function POST(request, { params }) {
   try {

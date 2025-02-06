@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { addComment, fetchPostById } from "../../../redux/slices/postSlice";
 import CommentPin from "../../../components/Home/CommentPin";
 import Spinner from "../../../components/Home/Spinner";
-import Pin from "../../../components/Home/Pin";
 
 const PinDetails = ({ params }) => {
   const unwrappedParams = use(params);
@@ -38,26 +37,26 @@ const PinDetails = ({ params }) => {
 
   if (loading) return <Spinner />;
 
-  if (!currentUser) return null;
+  // console.log("currentPost", currentPost);
 
   return (
     <div className="flex py-4 flex-col bg-white">
       <div className="relative w-full h-[600px]">
         <Image
-          src={currentPost.imageUrl}
-          alt={currentPost.description}
+          src={currentPost?.imageUrl}
+          alt={currentPost?.description}
           fill
           className="object-contain"
         />
       </div>
       <div className="w-full p-5 flex-1">
-        <p className="text-xl">Description: {currentPost.description}</p>
+        <p className="text-xl">Description: {currentPost?.description}</p>
 
         <div className="mt-6">
           <h2 className="text-2xl font-bold mb-4">Comments</h2>
           <div className="max-h-[400px] overflow-y-auto">
             {currentPost?.comment?.map((comment) => (
-              <CommentPin key={comment._id} comment={comment} />
+              <CommentPin key={comment.data._id} comment={comment} />
             ))}
           </div>
 

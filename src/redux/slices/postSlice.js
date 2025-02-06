@@ -69,7 +69,7 @@ export const fetchPostById = createAsyncThunk(
   async (postId, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(`${API_URL}/api/posts?postId=${postId}`);
-      return data.data;
+      console.log("data", data); return data.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Error fetching post"
@@ -157,7 +157,7 @@ export const addComment = createAsyncThunk(
       };
 
       const { data } = await axios.post(
-        `${API_URL}/api/posts/comment?postId=${postId}`,
+        `${API_URL}/api/posts/${postId}/comment`,
         commentData
       );
       return {
