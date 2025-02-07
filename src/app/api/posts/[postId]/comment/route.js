@@ -1,4 +1,4 @@
-import { connectDB } from "../../../..//../utils/db";
+import { connectDB } from "../../../../../utils/db";
 import Post from "../../../../../models/postSchema";
 import Comment from "../../../../../models/commentSchema";
 import { NextResponse } from "next/server";
@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 export async function POST(request, { params }) {
   try {
     await connectDB();
-    const { postId } = params;
+    const { postId } = await params;
     const { text, name } = await request.json();
 
     const post = await Post.findById(postId);
@@ -16,7 +16,6 @@ export async function POST(request, { params }) {
         { status: 404 }
       );
     }
-
     // Create new comment
     const newComment = new Comment({
       text,
@@ -27,7 +26,7 @@ export async function POST(request, { params }) {
     // Add comment to post
     post.comment.push(newComment._id);
     await post.save();
-
+    console.log("new comment created", newComment)
     return NextResponse.json(
       { success: true, data: newComment },
       { status: 201 }

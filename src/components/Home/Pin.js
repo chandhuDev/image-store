@@ -1,15 +1,15 @@
 "use client";
-import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
-import { likePost } from "../../redux/slices/postSlice";
+import { useSelector, useDispatch } from "react-redux";
+import { likePost, deletePost } from "../../redux/slices/postSlice";
+import { FcLike } from "react-icons/fc";
+import { MdDelete } from "react-icons/md"; // Add this import
 
 const Pin = ({ post }) => {
   const [postHovered, setPostHovered] = useState(false);
-
+  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
@@ -18,17 +18,39 @@ const Pin = ({ post }) => {
     router.push(`/post/${post._id}`);
   };
 
-  const handleLike = () => {
+  const handleLike = async () => {
     if (currentUser) {
-      dispatch(
-        likePost({
-          postId: post._id,
-          userId: currentUser.id,
-        })
-      );
+      try {
+        await dispatch(
+          likePost({
+            postId: post._id,
+            userId: currentUser.id,
+          })
+        ).unwrap();
+      } catch (error) {
+        console.error("Error liking post:", error);
+      }
     }
   };
 
+  const handleDelete = async (e) => {
+    e.stopPropagation();
+    if (window.confirm("Are you sure you want to delete this post?")) {
+      setIsDeleting(true);
+      try {
+        await dispatch(
+          deletePost({
+            postId: post._id,
+            userId: currentUser.id,
+          })
+        ).unwrap();
+      } catch (error) {
+        console.error("Failed to delete post:", error);
+      } finally {
+        setIsDeleting(false);
+      }
+    }
+  };
 
   return (
     <div className="m-2">
@@ -36,47 +58,63 @@ const Pin = ({ post }) => {
         onMouseEnter={() => setPostHovered(true)}
         onMouseLeave={() => setPostHovered(false)}
         onClick={handleNavigate}
-        className="relative cursor-zoom-in w-auto hover:shadow-lg rounded-lg overflow-hidden transition-all duration-500 ease-in-out"
+        className="relative cursor-pointer w-full hover:shadow-lg rounded-lg overflow-hidden transition-all duration-500 ease-in-out"
       >
-        <div className="relative w-[300px] h-[240px] ">
+        <div className="relative w-[300px] h-[240px]">
           <Image
-            src={post.imageUrl} // Updated to match schema
-            alt={post.description} // Updated to match schema
+            src={post.imageUrl}
+            alt={post.description}
             fill
             className="rounded-lg w-full object-cover"
           />
         </div>
 
-        {postHovered ? (
-          <div className="absolute top-0 w-full h-full flex flex-col justify-between p-2 z-50">
-            <div className="flex justify-between items-center">
-              <div className="flex gap-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleLike();
-                  }}
-                  className={`flex items-center gap-1 ${
-                    post.like.includes(currentUser.id)
-                      ? "text-red-500"
-                      : "text-black"
-                  }`}
-                >
+        <div className="w-full h-full flex flex-col justify-between p-2">
+          <div className="flex justify-between items-center">
+            <div className="flex gap-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleLike();
+                }}
+                className={`flex items-center gap-1 ${
+                  post.like.includes(currentUser.id)
+                    ? "text-red-500"
+                    : "text-black"
+                }`}
+              >
+                <div className="flex flex-row gap-x-2">
+                  <FcLike />
                   <span>{post.like.length}</span>
-                </button>
-              </div>
+                  {postHovered && (
+                    <>
+                      {post.like.includes(currentUser.id) && (
+                        <p>You liked this post</p>
+                      )}
+                    </>
+                  )}
+                </div>
+              </button>
             </div>
+            {currentUser.id === post.userId && (
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="p-2"
+              >
+                <div className="flex flex-row gap-x-2">
+                  <MdDelete
+                    className={`text-red-500 text-xl ${
+                      isDeleting ? "animate-spin" : ""
+                    }`}
+                  />
+                  <span>delete</span>
+                </div>
+              </button>
+            )}
           </div>
-        ) : null}
+        </div>
       </div>
-
-      {/* {post._id ? (
-        <Link href={`/post/${post._id}`}>
-          <div className="flex gap-2 mt-2 items-center">
-           {post.description ?  <p className="font-semibold capitalize">{post.description}</p> : null }
-          </div>
-        </Link>
-      ) : null } */}
     </div>
   );
 };

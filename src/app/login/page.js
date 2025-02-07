@@ -34,7 +34,7 @@ const Login = () => {
     setLoading(true);
     try {
       const userData = await dispatch(userLogin({ email, password })).unwrap();
-      console.log(userData);
+      // console.log(userData);
     } catch (error) {
       const errorMessage =
         error === "User not found. Please register first."

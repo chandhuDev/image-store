@@ -1,5 +1,5 @@
 // redux/slices/postSlice.js
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, thunkAPI } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -69,7 +69,8 @@ export const fetchPostById = createAsyncThunk(
   async (postId, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(`${API_URL}/api/posts?postId=${postId}`);
-      console.log("data", data); return data.data;
+      // console.log("data", data);
+      return data.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Error fetching post"
@@ -125,17 +126,13 @@ export const createPost = createAsyncThunk(
   }
 );
 
-// Like/Unlike post
 export const likePost = createAsyncThunk(
   "posts/like",
   async ({ postId, userId }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.put(
-        `${API_URL}/api/posts/like?postId=${postId}`,
-        {
-          userId,
-        }
-      );
+      const { data } = await axios.put(`${API_URL}/api/posts/${postId}/like`, {
+        userId,
+      });
       return data;
     } catch (error) {
       return rejectWithValue(
@@ -145,12 +142,10 @@ export const likePost = createAsyncThunk(
   }
 );
 
-// Add comment to post
 export const addComment = createAsyncThunk(
   "posts/addComment",
   async ({ postId, comment }, { rejectWithValue }) => {
     try {
-      // Create comment first
       const commentData = {
         text: comment.text,
         name: comment.name,
@@ -160,9 +155,11 @@ export const addComment = createAsyncThunk(
         `${API_URL}/api/posts/${postId}/comment`,
         commentData
       );
+
+      // console.log("updated comment", data);
       return {
+        comment: data.data,
         postId,
-        comment: data, // This will be the newly created comment
       };
     } catch (error) {
       return rejectWithValue(
@@ -175,10 +172,12 @@ export const addComment = createAsyncThunk(
 // Delete post
 export const deletePost = createAsyncThunk(
   "posts/delete",
-  async (postId, { rejectWithValue }) => {
+  async ({ postId, userId }, { rejectWithValue, thunkAPI }) => {
     try {
       await axios.delete(`${API_URL}/api/posts/${postId}`);
-      return postId; // Return postId to remove it from state
+      thunkAPI.dispatch(fetchAllPosts());
+      thunkAPI.dispatch(fetchUserPosts(userId));
+      return postId;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Error deleting post"
@@ -282,7 +281,6 @@ const postSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Create post
       .addCase(createPost.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -300,21 +298,9 @@ const postSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Like/Unlike post
       .addCase(likePost.fulfilled, (state, action) => {
-        const updatePost = (posts) => {
-          const index = posts.findIndex(
-            (post) => post._id === action.payload._id
-          );
-          if (index !== -1) {
-            posts[index].like = action.payload.like;
-          }
-        };
-
-        updatePost(state.allPosts);
-        updatePost(state.userPosts);
-        updatePost(state.categoryPosts);
-        updatePost(state.searchResults);
+        // console.log("data in redux store", action.payload);
+        state.loading = false;
 
         if (state.currentPost?._id === action.payload._id) {
           state.currentPost.like = action.payload.like;
@@ -326,20 +312,7 @@ const postSlice = createSlice({
       })
       .addCase(addComment.fulfilled, (state, action) => {
         state.loading = false;
-        // Update comment in all post lists
-        const updatePostComments = (posts) => {
-          const post = posts.find((p) => p._id === action.payload.postId);
-          if (post) {
-            post.comment.push(action.payload.comment);
-          }
-        };
 
-        updatePostComments(state.allPosts);
-        updatePostComments(state.userPosts);
-        updatePostComments(state.categoryPosts);
-        updatePostComments(state.searchResults);
-
-        // Update current post if it's the one being commented on
         if (state.currentPost?._id === action.payload.postId) {
           state.currentPost.comment.push(action.payload.comment);
         }
@@ -354,21 +327,6 @@ const postSlice = createSlice({
       })
       .addCase(deletePost.fulfilled, (state, action) => {
         state.loading = false;
-        // Remove post from all lists
-        state.allPosts = state.allPosts.filter(
-          (post) => post._id !== action.payload
-        );
-        state.userPosts = state.userPosts.filter(
-          (post) => post._id !== action.payload
-        );
-        state.categoryPosts = state.categoryPosts.filter(
-          (post) => post._id !== action.payload
-        );
-        state.searchResults = state.searchResults.filter(
-          (post) => post._id !== action.payload
-        );
-
-        // Clear currentPost if it's the deleted one
         if (state.currentPost?._id === action.payload) {
           state.currentPost = null;
         }
