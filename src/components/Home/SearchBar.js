@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useState } from "react";
 import { IoMdSearch } from "react-icons/io";
 
@@ -13,23 +13,20 @@ const SearchBar = ({ posts, onFilteredPosts }) => {
   };
 
   const filterPosts = (term) => {
-    // If search is empty, return all posts
     if (!term.trim()) {
       onFilteredPosts(posts);
       return;
     }
 
-    // Case-insensitive search
     const searchTermLower = term.toLowerCase().trim();
-    
-    const filtered = posts.filter(post => 
-      // Check if post description (category) matches search term
-      post.description.toLowerCase().includes(searchTermLower) ||
-      // Check if post matches any predefined category
-      CATEGORIES.some(category => 
-        category.toLowerCase().includes(searchTermLower) &&
-        post.description.toLowerCase().includes(category.toLowerCase())
-      )
+    const filtered = posts.filter(
+      (post) =>
+        post.description.toLowerCase().includes(searchTermLower) ||
+        CATEGORIES.some(
+          (category) =>
+            category.toLowerCase().includes(searchTermLower) &&
+            post.description.toLowerCase().includes(category.toLowerCase())
+        )
     );
 
     onFilteredPosts(filtered);
@@ -38,7 +35,7 @@ const SearchBar = ({ posts, onFilteredPosts }) => {
   const handleInputChange = (e) => {
     const newTerm = e.target.value;
     setSearchTerm(newTerm);
-    filterPosts(newTerm); // Filter as user types
+    filterPosts(newTerm);
   };
 
   return (
@@ -48,7 +45,7 @@ const SearchBar = ({ posts, onFilteredPosts }) => {
         value={searchTerm}
         onChange={handleInputChange}
         onKeyDown={(e) => {
-          if (e.key === 'Enter') {
+          if (e.key === "Enter") {
             e.preventDefault();
             filterPosts(searchTerm);
           }

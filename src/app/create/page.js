@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { uploadFile } from "../../redux/slices/uploadSlice";
@@ -8,6 +8,7 @@ import Spinner from "../../components/Home/Spinner";
 import { toast } from "react-toastify";
 
 const CreatePin = () => {
+  const [mounted, setMounted] = useState(false);
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
@@ -17,6 +18,10 @@ const CreatePin = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { currentUser } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -44,7 +49,6 @@ const CreatePin = () => {
     setLoading(true);
     try {
       const formData = new FormData();
-
       formData.append("file", imageFile);
       formData.append("category", category);
 
@@ -54,7 +58,7 @@ const CreatePin = () => {
         throw new Error("Upload failed");
       }
 
-      const result = await dispatch(
+      await dispatch(
         createPost({
           description,
           categoryId: category,
@@ -62,23 +66,15 @@ const CreatePin = () => {
           imageUrl: uploadResult.url,
         })
       ).unwrap();
-
-      if (result.success) {
-        toast.success("Post created successfully!");
-        setTimeout(() => {
-          router.push("/");
-          router.refresh();
-        }, 100);
-      }
+      router.replace("/");
     } catch (error) {
       console.error("Post creation failed:", error);
       toast.error(error.message || "Failed to create post");
-    } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
+  if (!mounted || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Spinner />
@@ -124,7 +120,6 @@ const CreatePin = () => {
             className="outline-none w-4/5 text-base border-b-2 border-gray-200 p-2 rounded-md cursor-pointer"
           >
             <option value="">Select Category</option>
-
             <option value="nature">Nature</option>
             <option value="Animal">Animal</option>
             <option value="Travel">Travel</option>

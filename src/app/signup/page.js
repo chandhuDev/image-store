@@ -65,7 +65,6 @@ const Signup = () => {
     try {
       const { confirmPassword, ...signupData } = formData;
       const userData = await dispatch(userSignup(signupData)).unwrap();
-      console.log(userData);
     } catch (error) {
       const errorMessage =
         error === "Email already exists"

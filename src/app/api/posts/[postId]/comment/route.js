@@ -16,17 +16,14 @@ export async function POST(request, { params }) {
         { status: 404 }
       );
     }
-    // Create new comment
     const newComment = new Comment({
       text,
       name,
     });
     await newComment.save();
 
-    // Add comment to post
     post.comment.push(newComment._id);
     await post.save();
-    console.log("new comment created", newComment)
     return NextResponse.json(
       { success: true, data: newComment },
       { status: 201 }

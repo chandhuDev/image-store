@@ -1,37 +1,30 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { IoMdSearch } from "react-icons/io";
 
 const CATEGORIES = ["Nature", "Animal", "Travel", "User", "Textures"];
 
 const ViewFeed = ({ posts, onFilteredPosts }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    filterPosts(searchTerm);
-  };
 
   const filterPosts = (term) => {
-    if (!term.trim()) {
-      onFilteredPosts(posts);
-      return;
-    }
-
     const searchTermLower = term.toLowerCase().trim();
 
-    const filtered = posts.filter(
-      (post) =>
-        post.description.toLowerCase().includes(searchTermLower) ||
-        CATEGORIES.some(
-          (category) =>
-            category.toLowerCase().includes(searchTermLower) &&
-            post.description.toLowerCase().includes(category.toLowerCase())
-        )
+    const matchingCategories = CATEGORIES.filter((category) =>
+      category.toLowerCase().includes(searchTermLower)
     );
 
-    onFilteredPosts(filtered);
+    if (matchingCategories.length > 0) {
+      const filtered = posts.filter((post) =>
+        matchingCategories.some(
+          (category) =>
+            post.categoryId?.category?.toLowerCase() === category.toLowerCase()
+        )
+      );
+      onFilteredPosts(filtered);
+    } else {
+      onFilteredPosts(posts);
+    }
   };
 
   const handleInputChange = (e) => {
@@ -40,15 +33,10 @@ const ViewFeed = ({ posts, onFilteredPosts }) => {
     filterPosts(newTerm);
   };
 
-  // if (loading) {
-  //   return <p>Loading...</p>;
-  // }
-
-  useEffect(() => {
-    if (loading) {
-      setLoading(false);
-    }
-  }, [loading]);
+  const handleSearch = (e) => {
+    e.preventDefault();
+    filterPosts(searchTerm);
+  };
 
   return (
     <form onSubmit={handleSearch} className="relative flex w-full max-w-3xl">

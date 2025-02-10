@@ -1,26 +1,28 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchCategoryPosts } from "../../../redux/slices/postSlice";
+import { useSelector } from "react-redux";
 import MasonryLayout from "../../../components/Home/MasonryLayout";
 import Spinner from "../../../components/Home/Spinner";
 
 const CategoryPage = () => {
   const { categoryName } = useParams();
-
-  const dispatch = useDispatch();
-  const { categoryPosts, loading } = useSelector((state) => state.posts);
-
-  const cachedPosts = categoryPosts || [];
+  const [categoryPosts, setCategoryPosts] = useState(null);
+  const { allPosts } = useSelector((state) => state.posts);
+  const [loading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (categoryName) {
-      dispatch(fetchCategoryPosts(categoryName));
+      setCategoryPosts(
+        allPosts?.data?.filter(
+          (post) => post.categoryId.category === categoryName
+        )
+      );
+      setIsLoading(false);
     }
   }, [categoryName]);
 
-  if (loading && cachedPosts.length === 0) return <Spinner />;
+  if (loading) return <Spinner />;
 
   return (
     <div className="relative pb-2 h-full">
@@ -38,7 +40,7 @@ const CategoryPage = () => {
           </div>
         </div>
       </div>
-      {cachedPosts?.length === 0 ? (
+      {categoryPosts?.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full">
           <p className="font-bold text-xl">
             No posts found for category{" "}
@@ -57,7 +59,7 @@ const CategoryPage = () => {
         </div>
       ) : null}
       <div className="px-2">
-        <MasonryLayout pins={cachedPosts} />
+        <MasonryLayout pins={categoryPosts} />
       </div>
     </div>
   );

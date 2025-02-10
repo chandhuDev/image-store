@@ -12,16 +12,20 @@ import Spinner from "../../../components/Home/Spinner";
 import { FcLike } from "react-icons/fc";
 
 const PinDetails = ({ params }) => {
-  const unwrappedParams = use(params);
-  const postId = unwrappedParams.postId;
+  const [mounted, setMounted] = useState(false);
   const [commentText, setCommentText] = useState("");
-  const dispatch = useDispatch();
-  const { currentPost, loading } = useSelector((state) => state.posts);
-  const { currentUser } = useSelector((state) => state.user);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
 
+  const dispatch = useDispatch();
+  const { currentPost, loading } = useSelector((state) => state.posts);
+  const { currentUser } = useSelector((state) => state.user);
+
+  const unwrappedParams = use(params);
+  const postId = unwrappedParams.postId;
+
   useEffect(() => {
+    setMounted(true);
     if (postId) {
       dispatch(fetchPostById(postId));
     }
@@ -31,7 +35,6 @@ const PinDetails = ({ params }) => {
     if (postId && currentUser) {
       try {
         setIsLiking(true);
-
         await dispatch(
           likePost({
             postId,
@@ -69,7 +72,7 @@ const PinDetails = ({ params }) => {
     }
   };
 
-  if (loading) return <Spinner />;
+  if (!mounted || loading || !currentPost) return <Spinner />;
 
   return (
     <div className="flex py-4 flex-col bg-white overflow-y-auto h-full">
@@ -79,17 +82,22 @@ const PinDetails = ({ params }) => {
           alt={currentPost?.description}
           fill
           className="object-contain"
+          priority
         />
       </div>
-      <div
-        className={`flex justify-center cursor-pointer flex-col px-5 py-2 w-auto gap-2 mt-2 bg-black/25 rounded-lg ${
-          isLiking ? "opacity-50" : ""
-        }`}
-        onClick={!isLiking ? handleLike : undefined}
-      >
-        <FcLike />
-        <p>{currentPost?.like?.length || 0}</p>
-      </div>
+
+      {currentUser && currentPost.userId !== currentUser.id ? (
+        <div
+          className={`flex justify-center cursor-pointer flex-col px-5 py-2 w-auto gap-2 mt-2 bg-black/25 rounded-lg ${
+            isLiking ? "opacity-50" : ""
+          }`}
+          onClick={!isLiking ? handleLike : undefined}
+        >
+          <FcLike />
+          <p>{currentPost?.like?.length || 0}</p>
+        </div>
+      ) : null}
+
       <div className="w-full p-5 flex-1">
         <p className="text-xl">Description: {currentPost?.description}</p>
 

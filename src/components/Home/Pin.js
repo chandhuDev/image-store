@@ -3,7 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import { likePost, deletePost } from "../../redux/slices/postSlice";
+import { deletePost, fetchAllPosts } from "../../redux/slices/postSlice";
 import { FcLike } from "react-icons/fc";
 import { MdDelete } from "react-icons/md"; // Add this import
 
@@ -26,9 +26,9 @@ const Pin = ({ post }) => {
         await dispatch(
           deletePost({
             postId: post._id,
-            userId: currentUser.id,
           })
         ).unwrap();
+        await dispatch(fetchAllPosts()).unwrap();
       } catch (error) {
         console.error("Failed to delete post:", error);
       } finally {
@@ -36,9 +36,6 @@ const Pin = ({ post }) => {
       }
     }
   };
-
-  console.log("currentUser", currentUser);
-  console.log("currentPost", post);
 
   return (
     <div className="m-2">
@@ -77,10 +74,17 @@ const Pin = ({ post }) => {
                       )}
                     </>
                   )}
+                  {postHovered && (
+                    <>
+                      {post?.userId?._id === currentUser.id && (
+                        <p>You created this post</p>
+                      )}
+                    </>
+                  )}
                 </div>
               </button>
             </div>
-            {currentUser.id === post?.userId && (
+            {currentUser.id === post?.userId?._id && (
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}

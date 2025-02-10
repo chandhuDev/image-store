@@ -34,63 +34,16 @@ export const fetchUserPosts = createAsyncThunk(
   }
 );
 
-// Fetch posts by categoryId
-export const fetchCategoryPosts = createAsyncThunk(
-  "posts/fetchByCategory",
-  async (categoryName, { rejectWithValue, getState }) => {
-    try {
-      const { data } = await axios.get(
-        `${API_URL}/api/posts?categoryId=${categoryName}`
-      );
-
-      // Get current state
-      const state = getState();
-      const existingPosts = state.posts.categoryPosts;
-
-      // Filter out duplicates if needed
-      const newPosts = data.data; // Access the data property from the response
-      const uniquePosts = newPosts.filter(
-        (newPost) =>
-          !existingPosts.some((existing) => existing._id === newPost._id)
-      );
-
-      return uniquePosts;
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Error fetching category posts"
-      );
-    }
-  }
-);
-
 // Fetch single post by postId
 export const fetchPostById = createAsyncThunk(
   "posts/fetchById",
   async (postId, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(`${API_URL}/api/posts?postId=${postId}`);
-      // console.log("data", data);
       return data.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Error fetching post"
-      );
-    }
-  }
-);
-
-// Search posts
-export const searchPosts = createAsyncThunk(
-  "posts/search",
-  async (searchTerm, { rejectWithValue }) => {
-    try {
-      const { data } = await axios.get(
-        `${API_URL}/api/posts/search?term=${searchTerm}`
-      );
-      return data;
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Error searching posts"
       );
     }
   }
@@ -116,9 +69,6 @@ export const createPost = createAsyncThunk(
       if (!response.ok) {
         throw new Error("Failed to create post");
       }
-
-      const data = await response.json();
-      return data;
     } catch (error) {
       return rejectWithValue(error.message || "Error creating post");
     }
@@ -155,7 +105,6 @@ export const addComment = createAsyncThunk(
         commentData
       );
 
-      // console.log("updated comment", data);
       return {
         comment: data.data,
         postId,
@@ -170,12 +119,9 @@ export const addComment = createAsyncThunk(
 
 export const deletePost = createAsyncThunk(
   "posts/delete",
-  async ({ postId , userId }, { rejectWithValue }) => {
+  async ({ postId }, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API_URL}/api/posts/${postId}`, {
-        userId,
-      });
-      return postId;
+      await axios.delete(`${API_URL}/api/posts/${postId}`);
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Error deleting post"
@@ -189,9 +135,7 @@ const postSlice = createSlice({
   initialState: {
     allPosts: [],
     userPosts: [],
-    categoryPosts: [],
     currentPost: null,
-    searchResults: [],
     loading: false,
     error: null,
   },
@@ -202,8 +146,6 @@ const postSlice = createSlice({
     clearPosts: (state) => {
       state.allPosts = [];
       state.userPosts = [];
-      state.categoryPosts = [];
-      state.searchResults = [];
       state.currentPost = null;
     },
   },
@@ -236,21 +178,6 @@ const postSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-
-      // Fetch category posts
-      .addCase(fetchCategoryPosts.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchCategoryPosts.fulfilled, (state, action) => {
-        state.loading = false;
-        state.categoryPosts = [...state.categoryPosts, ...action.payload];
-      })
-      .addCase(fetchCategoryPosts.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-
       // Fetch single post
       .addCase(fetchPostById.pending, (state) => {
         state.loading = true;
@@ -264,38 +191,6 @@ const postSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-
-      // Search posts
-      .addCase(searchPosts.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(searchPosts.fulfilled, (state, action) => {
-        state.loading = false;
-        state.searchResults = action.payload;
-      })
-      .addCase(searchPosts.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      //create new post
-      .addCase(createPost.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(createPost.fulfilled, (state, action) => {
-        state.loading = false;
-        const newPost = action.payload.data;
-        if (newPost) {
-          state.allPosts = [newPost, ...state.allPosts];
-          state.userPosts = [newPost, ...state.userPosts];
-        }
-      })
-      .addCase(createPost.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-
       .addCase(likePost.fulfilled, (state, action) => {
         state.loading = false;
 
@@ -315,21 +210,6 @@ const postSlice = createSlice({
         }
       })
       .addCase(addComment.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      //delete post
-      .addCase(deletePost.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(deletePost.fulfilled, (state, action) => {
-        state.loading = false;
-        if (state.currentPost?._id === action.payload.postId) {
-          state.currentPost = null;
-        }
-      })
-      .addCase(deletePost.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

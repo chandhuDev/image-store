@@ -3,6 +3,7 @@ import { connectDB } from "../../../utils/db";
 import Post from "../../../models/postSchema";
 import Category from "../../../models/categorySchema";
 import Comment from "../../../models/commentSchema";
+import User from "../../../models/userSchema";
 
 export async function GET(request) {
   try {
@@ -10,13 +11,10 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
     const postId = searchParams.get("postId");
-    const categoryId = searchParams.get("categoryId");
 
     let posts;
 
     if (postId) {
-      console.log("server details", postId);
-
       posts = await Post.findById(postId)
         .populate("comment")
         .sort({ createdAt: -1 });
@@ -29,26 +27,17 @@ export async function GET(request) {
       }
     } else if (userId) {
       posts = await Post.find({ userId }).sort({ createdAt: -1 });
-    } else if (categoryId) {
-      const category = await Category.findOne({
-        category: categoryId.toLowerCase(),
-      });
-
-      if (!category) {
-        return NextResponse.json(
-          { success: false, message: "Category not found" },
-          { status: 404 }
-        );
-      }
-
-      posts = await Post.find({ categoryId: category._id }).sort({
-        createdAt: -1,
-      });
     } else {
-      posts = await Post.find().sort({ createdAt: -1 });
+      posts = await Post.find()
+        .populate("categoryId")
+        .populate({
+          path: "userId",
+          model: "User",
+          select: "username",
+        })
+        .sort({ createdAt: -1 });
     }
 
-    console.log("posts", posts);
     return NextResponse.json(
       {
         success: true,
