@@ -1,5 +1,6 @@
 "use client";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserPosts } from "../../redux/slices/postSlice";
 import MasonryLayout from "../../components/Home/MasonryLayout";
@@ -7,6 +8,7 @@ import Spinner from "../../components/Home/Spinner";
 
 const UserPage = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
   const { userPosts, loading } = useSelector((state) => state.posts);
   const { currentUser } = useSelector((state) => state.user);
 
@@ -28,9 +30,24 @@ const UserPage = () => {
             </div>
           </div>
         </div>
-
+        {userPosts.data?.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full">
+            <p className="font-bold text-xl">
+              No posts found but you{" "}
+              <span
+                className="text-blue-500 cursor-pointer font-bold text-2xl p-2"
+                onClick={() => {
+                  router.push("/create");
+                }}
+              >
+                create
+              </span>
+              one
+            </p>
+          </div>
+        ) : null}
         <div className="px-2">
-          <MasonryLayout posts={userPosts} />
+          <MasonryLayout pins={userPosts.data} />
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
@@ -45,19 +45,16 @@ const CreatePin = () => {
     try {
       const formData = new FormData();
 
-      // Make sure to use the same field name as backend expects
-      formData.append("file", imageFile); // Must be 'file' to match backend
+      formData.append("file", imageFile);
       formData.append("category", category);
 
-      // Upload image first
       const uploadResult = await dispatch(uploadFile(formData)).unwrap();
 
       if (!uploadResult.url) {
         throw new Error("Upload failed");
       }
 
-       // Create post with image URL
-     const result= await dispatch(
+      const result = await dispatch(
         createPost({
           description,
           categoryId: category,
@@ -131,7 +128,6 @@ const CreatePin = () => {
             <option value="nature">Nature</option>
             <option value="Animal">Animal</option>
             <option value="Travel">Travel</option>
-            <option value="Art">Art</option>
             <option value="Textures">Textures</option>
           </select>
 

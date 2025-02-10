@@ -96,7 +96,6 @@ export const searchPosts = createAsyncThunk(
   }
 );
 
-// Create post
 export const createPost = createAsyncThunk(
   "posts/create",
   async (postData, { rejectWithValue }) => {
@@ -169,14 +168,13 @@ export const addComment = createAsyncThunk(
   }
 );
 
-// Delete post
 export const deletePost = createAsyncThunk(
   "posts/delete",
-  async ({ postId, userId }, { rejectWithValue, thunkAPI }) => {
+  async ({ postId , userId }, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API_URL}/api/posts/${postId}`);
-      thunkAPI.dispatch(fetchAllPosts());
-      thunkAPI.dispatch(fetchUserPosts(userId));
+      await axios.delete(`${API_URL}/api/posts/${postId}`, {
+        userId,
+      });
       return postId;
     } catch (error) {
       return rejectWithValue(
@@ -280,7 +278,7 @@ const postSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-
+      //create new post
       .addCase(createPost.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -299,11 +297,10 @@ const postSlice = createSlice({
       })
 
       .addCase(likePost.fulfilled, (state, action) => {
-        // console.log("data in redux store", action.payload);
         state.loading = false;
 
-        if (state.currentPost?._id === action.payload._id) {
-          state.currentPost.like = action.payload.like;
+        if (state.currentPost?._id === action.payload.data._id) {
+          state.currentPost.like = action.payload.data.like;
         }
       })
       .addCase(addComment.pending, (state) => {
@@ -321,13 +318,14 @@ const postSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      //delete post
       .addCase(deletePost.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(deletePost.fulfilled, (state, action) => {
         state.loading = false;
-        if (state.currentPost?._id === action.payload) {
+        if (state.currentPost?._id === action.payload.postId) {
           state.currentPost = null;
         }
       })

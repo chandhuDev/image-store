@@ -7,13 +7,13 @@ import { fetchAllPosts } from "../../redux/slices/postSlice";
 import Layout from "./Layout";
 import ImageGrid from "./ImageGrid";
 import Spinner from "./Spinner";
-import ViewFeed from "./ViewFeed";
+import SearchBar from "./ViewFeed";
 
 export default function HomeComponent() {
   const dispatch = useDispatch();
   const router = useRouter();
-
-  const { allPosts, loading, error } = useSelector((state) => state.posts);
+  const { allPosts, loading } = useSelector((state) => state.posts);
+  const [filteredPosts, setFilteredPosts] = useState([]);
 
   useEffect(() => {
     dispatch(fetchAllPosts());
@@ -46,6 +46,9 @@ export default function HomeComponent() {
                 Create Post
               </button>
             </div>
+          ) : null}
+          {allPosts.data?.length > 0 ? (
+            <SearchBar posts={allPosts.data} onFilteredPosts={setFilteredPosts} />
           ) : null}
 
           {allPosts.data?.length > 0 ? <ImageGrid /> : null}

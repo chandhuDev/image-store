@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "../../../utils/db";
 import Post from "../../../models/postSchema";
 import Category from "../../../models/categorySchema";
+import Comment from "../../../models/commentSchema";
 
 export async function GET(request) {
   try {
@@ -27,12 +28,8 @@ export async function GET(request) {
         );
       }
     } else if (userId) {
-      console.log("server details", userId);
-
       posts = await Post.find({ userId }).sort({ createdAt: -1 });
     } else if (categoryId) {
-      console.log("server details", categoryId);
-
       const category = await Category.findOne({
         category: categoryId.toLowerCase(),
       });
@@ -48,8 +45,6 @@ export async function GET(request) {
         createdAt: -1,
       });
     } else {
-      console.log("server details", userId, postId, categoryId);
-
       posts = await Post.find().sort({ createdAt: -1 });
     }
 
@@ -67,6 +62,64 @@ export async function GET(request) {
       {
         success: false,
         message: "Error fetching posts",
+        error: error.message,
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request) {
+  try {
+    await connectDB();
+
+    const body = await request.json();
+    const { description, categoryId, userId, imageUrl } = body;
+
+    if (!description || !categoryId || !userId || !imageUrl) {
+      return NextResponse.json(
+        { success: false, message: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+    const categoryDoc = await Category.findOne({
+      category: categoryId.toLowerCase(),
+    });
+
+    if (!categoryDoc) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Invalid category",
+        },
+        { status: 400 }
+      );
+    }
+
+    const newPost = new Post({
+      description,
+      categoryId: categoryDoc._id,
+      userId,
+      imageUrl,
+      like: [],
+      comment: [],
+    });
+
+    await newPost.save();
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: newPost,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Create post error:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Failed to create post",
         error: error.message,
       },
       { status: 500 }

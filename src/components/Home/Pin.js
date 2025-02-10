@@ -18,21 +18,6 @@ const Pin = ({ post }) => {
     router.push(`/post/${post._id}`);
   };
 
-  const handleLike = async () => {
-    if (currentUser) {
-      try {
-        await dispatch(
-          likePost({
-            postId: post._id,
-            userId: currentUser.id,
-          })
-        ).unwrap();
-      } catch (error) {
-        console.error("Error liking post:", error);
-      }
-    }
-  };
-
   const handleDelete = async (e) => {
     e.stopPropagation();
     if (window.confirm("Are you sure you want to delete this post?")) {
@@ -52,6 +37,9 @@ const Pin = ({ post }) => {
     }
   };
 
+  console.log("currentUser", currentUser);
+  console.log("currentPost", post);
+
   return (
     <div className="m-2">
       <div
@@ -62,8 +50,8 @@ const Pin = ({ post }) => {
       >
         <div className="relative w-[300px] h-[240px]">
           <Image
-            src={post.imageUrl}
-            alt={post.description}
+            src={post?.imageUrl}
+            alt={post?.description}
             fill
             className="rounded-lg w-full object-cover"
           />
@@ -73,22 +61,18 @@ const Pin = ({ post }) => {
           <div className="flex justify-between items-center">
             <div className="flex gap-2">
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleLike();
-                }}
                 className={`flex items-center gap-1 ${
-                  post.like.includes(currentUser.id)
+                  post?.like?.includes(currentUser.id)
                     ? "text-red-500"
                     : "text-black"
                 }`}
               >
                 <div className="flex flex-row gap-x-2">
                   <FcLike />
-                  <span>{post.like.length}</span>
+                  <span>{post?.like?.length}</span>
                   {postHovered && (
                     <>
-                      {post.like.includes(currentUser.id) && (
+                      {post?.like?.includes(currentUser.id) && (
                         <p>You liked this post</p>
                       )}
                     </>
@@ -96,7 +80,7 @@ const Pin = ({ post }) => {
                 </div>
               </button>
             </div>
-            {currentUser.id === post.userId && (
+            {currentUser.id === post?.userId && (
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}

@@ -70,7 +70,6 @@ const PinDetails = ({ params }) => {
   };
 
   if (loading) return <Spinner />;
-  // console.log("currrent post", currentPost);
 
   return (
     <div className="flex py-4 flex-col bg-white overflow-y-auto h-full">
