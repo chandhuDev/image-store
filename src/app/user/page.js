@@ -24,19 +24,21 @@ const UserPage = () => {
 
   if (!currentUser) {
     return (
-      <div className="flex flex-col items-center justify-center h-full">
-        <p className="font-bold text-xl">Please log in to view your posts</p>
+      <div className="flex min-h-screen flex-col items-center justify-center px-4">
+        <p className="text-center text-lg font-bold sm:text-xl">
+          Please log in to view your posts
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="relative pb-2 h-full">
+    <div className="relative min-h-screen w-full pb-2">
       <div className="flex flex-col pb-5">
-        <div className="relative flex flex-col mb-7">
-          <div className="flex flex-col justify-center items-center">
-            <div className="w-full flex flex-col items-center">
-              <h1 className="font-bold text-3xl text-center mt-3">
+        <div className="relative mb-7 flex flex-col">
+          <div className="flex flex-col items-center justify-center">
+            <div className="w-full flex flex-col items-center px-4">
+              <h1 className="mt-3 break-words text-center text-xl font-bold sm:text-2xl md:text-3xl">
                 {currentUser.username}
               </h1>
             </div>
@@ -44,11 +46,11 @@ const UserPage = () => {
         </div>
 
         {!userPosts?.data || userPosts.data.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full">
-            <p className="font-bold text-xl">
+          <div className="flex min-h-[50vh] flex-col items-center justify-center px-4">
+            <p className="text-center text-base font-bold sm:text-lg md:text-xl">
               No posts found but you{" "}
               <span
-                className="text-blue-500 cursor-pointer font-bold text-2xl p-2"
+                className="cursor-pointer p-2 text-lg font-bold text-blue-500 hover:underline sm:text-xl md:text-2xl"
                 onClick={() => router.push("/create")}
               >
                 create
@@ -57,7 +59,7 @@ const UserPage = () => {
             </p>
           </div>
         ) : (
-          <div className="px-2">
+          <div className="px-2 sm:px-4 md:px-6">
             <MasonryLayout pins={userPosts.data} />
           </div>
         )}

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { deletePost, fetchAllPosts } from "../../redux/slices/postSlice";
 import { FcLike } from "react-icons/fc";
-import { MdDelete } from "react-icons/md"; // Add this import
+import { MdDelete } from "react-icons/md";
 
 const Pin = ({ post }) => {
   const [postHovered, setPostHovered] = useState(false);
@@ -38,66 +38,60 @@ const Pin = ({ post }) => {
   };
 
   return (
-    <div className="m-2">
+    <div className="w-full p-2">
       <div
         onMouseEnter={() => setPostHovered(true)}
         onMouseLeave={() => setPostHovered(false)}
         onClick={handleNavigate}
-        className="relative cursor-pointer w-full hover:shadow-lg rounded-lg overflow-hidden transition-all duration-500 ease-in-out"
+        className="group relative w-full overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
       >
-        <div className="relative w-[300px] h-[240px]">
+        {/* Image Container */}
+        <div className="relative aspect-[4/3] w-full overflow-hidden">
           <Image
             src={post?.imageUrl}
             alt={post?.description}
             fill
-            className="rounded-lg w-full object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            priority
           />
         </div>
 
-        <div className="w-full h-full flex flex-col justify-between p-2">
-          <div className="flex justify-between items-center">
-            <div className="flex gap-2">
+        {/* Content Overlay */}
+        <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/50 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <div className="flex items-center justify-between text-white">
+            {/* Like Section */}
+            <div className="flex items-center gap-2">
               <button
-                className={`flex items-center gap-1 ${
-                  post?.like?.includes(currentUser.id)
-                    ? "text-red-500"
-                    : "text-black"
-                }`}
+                className={`flex items-center gap-2 rounded-full bg-white/20 px-3 py-1.5 backdrop-blur-sm transition-colors`}
               >
-                <div className="flex flex-row gap-x-2">
-                  <FcLike />
-                  <span>{post?.like?.length}</span>
-                  {postHovered && (
-                    <>
-                      {post?.like?.includes(currentUser.id) && (
-                        <p>You liked this post</p>
-                      )}
-                    </>
-                  )}
-                  {postHovered && (
-                    <>
-                      {post?.userId?._id === currentUser.id && (
-                        <p>You created this post</p>
-                      )}
-                    </>
-                  )}
-                </div>
+                <FcLike className="h-5 w-5" />
+                <span className="text-sm font-medium">
+                  {post?.like?.length || 0}
+                </span>
               </button>
+
+              {postHovered && post?.like?.includes(currentUser.id) && (
+                <span className="text-sm">Liked</span>
+              )}
+
+              {postHovered && post?.userId?._id === currentUser.id && (
+                <span className="text-sm">Your post</span>
+              )}
             </div>
+
+            {/* Delete Button */}
             {currentUser.id === post?.userId?._id && (
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="p-2"
+                className="flex items-center gap-2 rounded-full bg-white/20 px-3 py-1.5 text-sm backdrop-blur-sm transition-colors hover:bg-white/30"
               >
-                <div className="flex flex-row gap-x-2">
-                  <MdDelete
-                    className={`text-red-500 text-xl ${
-                      isDeleting ? "animate-spin" : ""
-                    }`}
-                  />
-                  <span>delete</span>
-                </div>
+                <MdDelete
+                  className={`h-5 w-5 text-red-500 ${
+                    isDeleting ? "animate-spin" : ""
+                  }`}
+                />
               </button>
             )}
           </div>

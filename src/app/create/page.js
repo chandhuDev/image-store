@@ -83,57 +83,81 @@ const CreatePin = () => {
   }
 
   return (
-    <div className="flex flex-col justify-center items-center mt-5 lg:h-4/5">
-      <div className="flex lg:flex-row flex-col justify-center items-center bg-white lg:p-5 p-3 lg:w-4/5 w-full">
-        <div className="bg-secondaryColor p-3 flex flex-0.7 w-full">
-          <div className="flex justify-center items-center flex-col border-2 border-dotted border-gray-300 p-3 w-full h-420">
-            {previewUrl ? (
-              <img src={previewUrl} alt="preview" className="h-full w-full" />
-            ) : (
-              <label className="cursor-pointer">
-                <div className="flex flex-col items-center justify-center h-full">
-                  <p className="font-bold text-2xl">Click to upload</p>
+    <div className="flex min-h-screen w-full flex-col items-center justify-center px-4 py-6 sm:px-6 lg:px-8">
+      <div className="w-full max-w-4xl rounded-lg bg-white shadow-lg">
+        <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
+          {/* Image Upload Section */}
+          <div className="w-full rounded-lg bg-gray-50 p-3">
+            <div className="relative flex min-h-[300px] w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-2 sm:min-h-[400px]">
+              {previewUrl ? (
+                <div className="relative h-full w-full">
+                  <img
+                    src={previewUrl}
+                    alt="preview"
+                    className="h-full w-full rounded-lg object-contain"
+                  />
+                  <button
+                    onClick={() => {
+                      setPreviewUrl(null);
+                      setImageFile(null);
+                    }}
+                    className="absolute right-2 top-2 rounded-full bg-white p-2 shadow-md hover:bg-gray-100"
+                  >
+                    ✕
+                  </button>
                 </div>
-                <input
-                  type="file"
-                  onChange={handleImageChange}
-                  className="hidden"
-                  accept="image/*"
-                />
-              </label>
-            )}
+              ) : (
+                <label className="flex h-full w-full cursor-pointer flex-col items-center justify-center">
+                  <div className="text-center">
+                    <p className="mb-2 text-lg font-semibold sm:text-xl md:text-2xl">
+                      Click to upload
+                    </p>
+                    <p className="text-sm text-gray-500">Max file size: 20MB</p>
+                  </div>
+                  <input
+                    type="file"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    accept="image/*"
+                  />
+                </label>
+              )}
+            </div>
           </div>
-        </div>
 
-        <div className="flex flex-1 flex-col gap-6 lg:pl-5 mt-5 w-full">
-          <input
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Add your description"
-            className="outline-none text-2xl sm:text-3xl font-bold border-b-2 border-gray-200 p-2"
-          />
+          {/* Form Section */}
+          <div className="flex flex-col gap-6">
+            <div className="space-y-4">
+              <input
+                type="text"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Add your description"
+                className="w-full border-b-2 border-gray-200 p-2 text-lg font-medium outline-none transition focus:border-gray-400 sm:text-xl md:text-2xl"
+              />
 
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="outline-none w-4/5 text-base border-b-2 border-gray-200 p-2 rounded-md cursor-pointer"
-          >
-            <option value="">Select Category</option>
-            <option value="nature">Nature</option>
-            <option value="Animal">Animal</option>
-            <option value="Travel">Travel</option>
-            <option value="Textures">Textures</option>
-          </select>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full rounded-md border-2 border-gray-200 p-2 text-base outline-none transition focus:border-gray-400"
+              >
+                <option value="">Select Category</option>
+                <option value="nature">Nature</option>
+                <option value="Animal">Animal</option>
+                <option value="Travel">Travel</option>
+                <option value="Textures">Textures</option>
+              </select>
+            </div>
 
-          <div className="flex justify-end items-end mt-5">
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="bg-red-500 text-white font-bold p-2 rounded-full w-28 outline-none"
-            >
-              Create Post
-            </button>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleSubmit}
+                className="rounded-full bg-red-500 px-6 py-2 text-base font-bold text-white transition hover:bg-red-600 sm:px-8 sm:text-lg"
+              >
+                Create Post
+              </button>
+            </div>
           </div>
         </div>
       </div>

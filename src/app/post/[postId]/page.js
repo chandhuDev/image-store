@@ -72,63 +72,106 @@ const PinDetails = ({ params }) => {
     }
   };
 
-  if (!mounted || loading || !currentPost) return <Spinner />;
+  if (!mounted || loading || !currentPost) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
-    <div className="flex py-4 flex-col bg-white overflow-y-auto h-full">
-      <div className="relative w-full h-[600px]">
-        <Image
-          src={currentPost?.imageUrl}
-          alt={currentPost?.description}
-          fill
-          className="object-contain"
-          priority
-        />
-      </div>
-
-      {currentUser && currentPost.userId !== currentUser.id ? (
-        <div
-          className={`flex justify-center cursor-pointer flex-col px-5 py-2 w-auto gap-2 mt-2 bg-black/25 rounded-lg ${
-            isLiking ? "opacity-50" : ""
-          }`}
-          onClick={!isLiking ? handleLike : undefined}
-        >
-          <FcLike />
-          <p>{currentPost?.like?.length || 0}</p>
+    <div className="flex flex-col bg-white min-h-screen">
+      {/* Main Content Container */}
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        {/* Image Section */}
+        <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] rounded-lg overflow-hidden">
+          <Image
+            src={currentPost?.imageUrl}
+            alt={currentPost?.description}
+            fill
+            className="object-contain"
+            priority
+          />
         </div>
-      ) : null}
 
-      <div className="w-full p-5 flex-1">
-        <p className="text-xl">Description: {currentPost?.description}</p>
+        {/* Like Button Section */}
+        {currentUser && currentPost.userId !== currentUser.id && (
+          <div
+            className={`inline-flex items-center gap-2 px-4 py-2 mt-4 bg-gray-100 
+                       hover:bg-gray-200 transition-colors duration-200 rounded-lg 
+                       cursor-pointer ${isLiking ? "opacity-50" : ""}`}
+            onClick={!isLiking ? handleLike : undefined}
+          >
+            <FcLike className="w-6 h-6" />
+            <span className="text-sm font-medium">
+              {currentPost?.like?.length || 0}
+            </span>
+          </div>
+        )}
 
-        <div className="mt-6">
-          <h2 className="text-2xl font-bold mb-4">Comments</h2>
-          <div className="max-h-[400px] overflow-y-auto">
-            {currentPost?.comment?.map((comment) => (
-              <CommentPin key={comment?._id} comment={comment} />
-            ))}
+        {/* Description and Comments Section */}
+        <div className="mt-6 space-y-6">
+          {/* Description */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h2 className="text-lg sm:text-xl font-semibold mb-2">
+              Description
+            </h2>
+            <p className="text-gray-700">{currentPost?.description}</p>
           </div>
 
-          {currentUser && (
-            <div className="mt-6">
-              <textarea
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Add a comment..."
-                className="w-full p-2 border rounded-lg resize-none"
-                rows="3"
-              />
-              <button
-                onClick={handleAddComment}
-                disabled={isSubmittingComment}
-                className={`mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg ${
-                  isSubmittingComment ? "opacity-50" : ""
-                }`}
-              >
-                {isSubmittingComment ? "Adding Comment..." : "Add Comment"}
-              </button>
+          {/* Comments Section */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">Comments</h2>
+
+            {/* Comments List */}
+            <div
+              className="max-h-[300px] sm:max-h-[400px] overflow-y-auto 
+                          space-y-4 mb-6 scrollbar-thin scrollbar-thumb-gray-300 
+                          scrollbar-track-gray-100"
+            >
+              {currentPost?.comment?.map((comment) => (
+                <CommentPin key={comment?._id} comment={comment} />
+              ))}
             </div>
-          )}
+
+            {/* Add Comment Section */}
+            {currentUser && (
+              <div className="space-y-3">
+                <textarea
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  placeholder="Add a comment..."
+                  className="w-full p-3 border border-gray-300 rounded-lg resize-none
+                           focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                           placeholder:text-gray-400 text-sm sm:text-base"
+                  rows="3"
+                />
+                <button
+                  onClick={handleAddComment}
+                  disabled={isSubmittingComment}
+                  className={`w-full sm:w-auto px-6 py-2.5 bg-blue-500 text-white 
+                           rounded-lg font-medium hover:bg-blue-600 
+                           transition-colors duration-200
+                           focus:outline-none focus:ring-2 focus:ring-blue-500 
+                           focus:ring-offset-2 ${
+                             isSubmittingComment
+                               ? "opacity-50 cursor-not-allowed"
+                               : ""
+                           }`}
+                >
+                  {isSubmittingComment ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Spinner />
+                      <span>Adding Comment...</span>
+                    </span>
+                  ) : (
+                    "Add Comment"
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

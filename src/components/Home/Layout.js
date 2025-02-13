@@ -1,75 +1,95 @@
-// components/Layout.js
 "use client";
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { RiHomeFill } from "react-icons/ri";
 import { AiOutlineMenu } from "react-icons/ai";
+import { FaUserAlt } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import nature from "../../assets/nature.jpg";
 import animal from "../../assets/animal.jpg";
 import travel from "../../assets/travel.webp";
-import user from "../../assets/user.png";
 import textures from "../../assets/textures.webp";
 
-const Sidebar = () => {
+const Sidebar = ({ closeToggle }) => {
   const { currentUser } = useSelector((state) => state.user);
   const categories = [
     { name: "Nature", image: nature },
     { name: "Animal", image: animal },
     { name: "Travel", image: travel },
-    { name: "User", image: user },
+    { name: "User", isIcon: true },
     { name: "Textures", image: textures },
   ];
 
+  const handleCloseSidebar = () => {
+    if (closeToggle) closeToggle(false);
+  };
+
   return (
-    <div className="flex flex-col justify-between bg-white h-full overflow-y-scroll shadow-2xl min-w-210 hide-scrollbar">
-      <div className="flex flex-col">
-        <Link href="/" className="flex px-5 gap-2 my-6 pt-1 w-190 items-center">
-          <RiHomeFill />
-          <span>Home</span>
+    <div className="flex h-full min-w-[240px] flex-col justify-between bg-white shadow-xl">
+      <div className="flex flex-col overflow-y-auto hide-scrollbar">
+        <Link
+          href="/"
+          className="flex items-center gap-3 px-5 py-4 hover:bg-gray-50"
+          onClick={handleCloseSidebar}
+        >
+          <RiHomeFill className="text-xl" />
+          <span className="text-base font-medium">Home</span>
         </Link>
-        <div className="flex flex-col gap-5">
-          <h3 className="mt-2 px-5 text-base 2xl:text-xl">
+
+        <div className="flex flex-col">
+          <h3 className="px-5 py-3 text-base font-semibold text-gray-800 sm:text-lg">
             Discover categories
           </h3>
-          {categories.map((category) => (
+
+          <div className="flex flex-col">
+            {categories.map((category) => (
+              <Link
+                href={`${
+                  category.name === "User"
+                    ? "/user"
+                    : `/category/${category.name.toLowerCase()}`
+                }`}
+                key={category.name}
+                className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-gray-50"
+                onClick={handleCloseSidebar}
+              >
+                <div className="relative h-8 w-8 shrink-0 flex items-center justify-center">
+                  {category.isIcon ? (
+                    <FaUserAlt className="h-5 w-5 text-gray-600" />
+                  ) : (
+                    <Image
+                      src={category.image}
+                      alt={category.name}
+                      fill
+                      className="rounded-full object-cover"
+                    />
+                  )}
+                </div>
+                <span className="capitalize">{category.name}</span>
+              </Link>
+            ))}
+
             <Link
-              href={`${
-                category.name === "User"
-                  ? "/user"
-                  : `/category/${category.name.toLowerCase()}`
-              }`}
-              key={category.name}
-              className="flex items-center gap-3 hover:bg-gray-100 transition-all duration-200 ease-in-out capitalize px-5 py-3"
+              href="/create"
+              className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-gray-50"
+              onClick={handleCloseSidebar}
             >
-              <div className="relative w-8 h-8">
-                <Image
-                  src={category.image}
-                  alt={category.name}
-                  fill
-                  className="rounded-full"
-                />
-              </div>
-              {category.name}
+              <span className="font-medium">Create Post</span>
             </Link>
-          ))}
-          <Link
-            href="/create"
-            className="flex items-center gap-3 hover:bg-gray-100 transition-all duration-200 ease-in-out capitalize px-5 py-3"
-          >
-            Create Post
-          </Link>
+          </div>
         </div>
       </div>
-      {currentUser ? (
+
+      {currentUser && (
         <Link
           href={`/post/679df41f6b81f15e5767ec23`}
-          className="flex my-5 mb-3 gap-2 p-2 items-center bg-white rounded-lg shadow-lg mx-3"
+          className="mx-3 mb-4 mt-auto flex items-center gap-2 rounded-lg bg-white p-3 shadow-md transition-colors hover:bg-gray-50"
+          onClick={handleCloseSidebar}
         >
-          <p>{currentUser.username}</p>
+          <p className="truncate text-sm font-medium">{currentUser.username}</p>
         </Link>
-      ) : null}
+      )}
     </div>
   );
 };
@@ -78,39 +98,51 @@ const Layout = ({ children }) => {
   const [toggleSidebar, setToggleSidebar] = useState(false);
 
   return (
-    <div className="flex bg-gray-50 md:flex-row flex-col h-screen duration-75 ease-out">
-      <div className="hidden md:flex h-screen flex-initial">
+    <div className="flex h-screen flex-col bg-gray-50 transition-all duration-300 ease-in-out md:flex-row">
+      {/* Desktop Sidebar */}
+      <div className="hidden h-screen flex-shrink-0 md:flex">
         <Sidebar />
       </div>
-      <div className="flex md:hidden flex-row">
-        <div className="p-2 w-full flex flex-row justify-between items-center shadow-md">
-          <AiOutlineMenu
-            fontSize={40}
-            className="cursor-pointer"
-            onClick={() => setToggleSidebar(true)}
+
+      {/* Mobile Header */}
+      <div className="sticky top-0 z-20 flex items-center justify-between bg-white p-4 shadow-sm md:hidden">
+        <button
+          type="button"
+          className="rounded-lg p-2 hover:bg-gray-100"
+          onClick={() => setToggleSidebar(true)}
+        >
+          <AiOutlineMenu className="h-6 w-6" />
+        </button>
+        <Link href="/" className="text-lg font-bold">
+          ImageShare
+        </Link>
+        <div className="w-8" /> {/* Spacer for alignment */}
+      </div>
+
+      {/* Mobile Sidebar */}
+      {toggleSidebar && (
+        <>
+          <div
+            className="fixed inset-0 z-30 bg-black bg-opacity-50 transition-opacity"
+            onClick={() => setToggleSidebar(false)}
           />
-          <Link href="/">
-            <span className="font-bold text-xl">ImageShare</span>
-          </Link>
-        </div>
-        {toggleSidebar && (
-          <div className="fixed w-4/5 bg-white h-screen overflow-y-auto shadow-md z-10 animate-slide-in">
-            <div className="absolute w-full flex justify-end items-center p-2">
-              <button
-                type="button"
-                className="border rounded-full p-2"
-                onClick={() => setToggleSidebar(false)}
-              >
-                ×
-              </button>
-            </div>
+          <div className="fixed left-0 top-0 z-40 h-screen w-[280px] animate-slide-in bg-white shadow-xl">
+            <button
+              type="button"
+              className="absolute right-4 top-4 rounded-full p-2 hover:bg-gray-100"
+              onClick={() => setToggleSidebar(false)}
+            >
+              <span className="text-xl font-medium">×</span>
+            </button>
             <Sidebar closeToggle={setToggleSidebar} />
           </div>
-        )}
-      </div>
-      <div className="pb-2 flex-1 h-screen overflow-y-scroll">
-        <div className="px-2 md:px-5">{children}</div>
-      </div>
+        </>
+      )}
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto bg-gray-50 pb-4">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">{children}</div>
+      </main>
     </div>
   );
 };
