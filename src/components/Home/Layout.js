@@ -87,7 +87,7 @@ const Sidebar = ({ closeToggle }) => {
           className="mx-3 mb-4 mt-auto flex items-center gap-2 rounded-lg bg-white p-3 shadow-md transition-colors hover:bg-gray-50"
           onClick={handleCloseSidebar}
         >
-          <p className="truncate text-sm font-medium">{currentUser.username}</p>
+          <p className="truncate text-sm font-medium">{currentUser.name}</p>
         </Link>
       )}
     </div>

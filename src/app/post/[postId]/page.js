@@ -24,6 +24,9 @@ const PinDetails = ({ params }) => {
   const unwrappedParams = use(params);
   const postId = unwrappedParams.postId;
 
+  console.log(currentUser)
+
+
   useEffect(() => {
     setMounted(true);
     if (postId) {
@@ -58,7 +61,7 @@ const PinDetails = ({ params }) => {
             postId,
             comment: {
               text: commentText,
-              name: currentUser.username,
+              name: currentUser.name,
             },
             userId: currentUser.id,
           })

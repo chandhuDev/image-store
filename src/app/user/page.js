@@ -39,7 +39,7 @@ const UserPage = () => {
           <div className="flex flex-col items-center justify-center">
             <div className="w-full flex flex-col items-center px-4">
               <h1 className="mt-3 break-words text-center text-xl font-bold sm:text-2xl md:text-3xl">
-                {currentUser.username}
+                {currentUser.name}
               </h1>
             </div>
           </div>

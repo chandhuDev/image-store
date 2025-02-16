@@ -16,10 +16,11 @@ export const userLogin = createAsyncThunk(
         return rejectWithValue(data.message);
       }
 
-      localStorage.setItem("token", data.token);
-      document.cookie = `token=${data.token}; path=/`;
+      localStorage.setItem("imageToken", data.token);
+      localStorage.setItem("imageUser", data.user);
+      document.cookie = `imageToken=${data.token}; path=/`;
 
-      return data;
+      return data.user;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Login failed. Please try again."
@@ -39,11 +40,11 @@ export const userSignup = createAsyncThunk(
       }
 
       localStorage.setItem("imageToken", data.token);
-      localStorage.setItem("imageUser", JSON.stringify(data.user)); // Store user data
+      localStorage.setItem("imageUser", data.user);
 
       document.cookie = `imageToken=${data.token}; path=/`;
 
-      return data;
+      return data.user;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message ||
@@ -56,18 +57,15 @@ export const userSignup = createAsyncThunk(
 const userSlice = createSlice({
   name: "user",
   initialState: {
-    currentUser:
-      typeof window !== "undefined"
-        ? JSON.parse(localStorage.getItem("imageUser"))
-        : null,
+    currentUser: null,
     loading: false,
     error: null,
   },
   reducers: {
     logout: (state) => {
       state.currentUser = null;
-      localStorage.removeItem("token");
-      document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+      localStorage.removeItem("imageToken");
+      document.cookie = "imageToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
     },
     setUser: (state, action) => {
       state.currentUser = action.payload;

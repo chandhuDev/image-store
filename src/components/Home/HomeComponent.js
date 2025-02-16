@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { fetchAllPosts } from "../../redux/slices/postSlice";
 import Layout from "./Layout";
 import ImageGrid from "./ImageGrid";
@@ -11,14 +11,31 @@ import SearchBar from "./ViewFeed";
 export default function HomeComponent() {
   const dispatch = useDispatch();
   const router = useRouter();
+  const pathname = usePathname();
   const { allPosts, loading } = useSelector((state) => state.posts);
   const [filteredPosts, setFilteredPosts] = useState(null);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
-    dispatch(fetchAllPosts());
-  }, [dispatch]);
+    // Get the previous path from localStorage
+    const prevPath = localStorage.getItem("prevPath");
+
+    // Only fetch if we're not coming from a post detail page
+    if (!prevPath?.startsWith("/post/") && !allPosts?.data) {
+      dispatch(fetchAllPosts());
+    }
+
+    // Store current path for next navigation
+    localStorage.setItem("prevPath", pathname);
+
+    // Cleanup when component unmounts
+    return () => {
+      if (!pathname.startsWith("/post/")) {
+        localStorage.removeItem("prevPath");
+      }
+    };
+  }, [pathname, dispatch]);
 
   if (!isClient || loading) {
     return (

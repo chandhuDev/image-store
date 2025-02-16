@@ -219,6 +219,7 @@ const Signup = () => {
             <div className="mt-4 sm:mt-6">
               <Link
                 href="/login"
+                prefetch={false}
                 className="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm sm:text-base font-medium text-indigo-600 bg-white hover:bg-gray-50 transition-colors"
               >
                 Sign in

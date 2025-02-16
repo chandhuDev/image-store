@@ -7,9 +7,14 @@ import { deletePost, fetchAllPosts } from "../../redux/slices/postSlice";
 import { FcLike } from "react-icons/fc";
 import { MdDelete } from "react-icons/md";
 
+const ImageSkeleton = () => (
+  <div className="absolute inset-0 animate-pulse bg-gray-200" />
+);
+
 const Pin = ({ post }) => {
   const [postHovered, setPostHovered] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
   const router = useRouter();
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
@@ -38,7 +43,7 @@ const Pin = ({ post }) => {
   };
 
   return (
-    <div className="w-full p-2">
+    <div className="w-full p-2 cursor-pointer">
       <div
         onMouseEnter={() => setPostHovered(true)}
         onMouseLeave={() => setPostHovered(false)}
@@ -46,14 +51,21 @@ const Pin = ({ post }) => {
         className="group relative w-full overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
       >
         {/* Image Container */}
-        <div className="relative aspect-[4/3] w-full overflow-hidden">
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
+          {imageLoading && <ImageSkeleton />}
           <Image
             src={post?.imageUrl}
-            alt={post?.description}
+            alt={post?.description || "Post image"}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-            priority
+            className={`object-cover transition-transform duration-300 group-hover:scale-105 ${
+              imageLoading ? "opacity-0" : "opacity-100"
+            }`}
+            priority={false}
+            loading="lazy"
+            onLoadingComplete={() => setImageLoading(false)}
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx0fHRsdHSEfHR0dHSEwISUdHR0dJTAlJiMjHiYjJTQnJyg6LCg+Pzo9OjU1P0FBQUH/2wBDABUXFx4dHh8hISE9LSUtQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUH/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
           />
         </div>
 
@@ -62,38 +74,41 @@ const Pin = ({ post }) => {
           <div className="flex items-center justify-between text-white">
             {/* Like Section */}
             <div className="flex items-center gap-2">
-              <button
-                className={`flex items-center gap-2 rounded-full bg-white/20 px-3 py-1.5 backdrop-blur-sm transition-colors`}
-              >
+              <button className="flex items-center gap-2 rounded-full bg-white/20 px-3 py-1.5 backdrop-blur-sm transition-colors">
                 <FcLike className="h-5 w-5" />
                 <span className="text-sm font-medium">
                   {post?.like?.length || 0}
                 </span>
               </button>
 
-              {postHovered && post?.like?.includes(currentUser.id) && (
+              {postHovered && post?.like?.includes(currentUser?.id) && (
                 <span className="text-sm">Liked</span>
               )}
 
-              {postHovered && post?.userId?._id === currentUser.id && (
-                <span className="text-sm">Your post</span>
-              )}
+              {postHovered &&
+                post?.userId?._id &&
+                currentUser?.id &&
+                post.userId._id === currentUser?.id && (
+                  <span className="text-sm">Your post</span>
+                )}
             </div>
 
             {/* Delete Button */}
-            {currentUser.id === post?.userId?._id && (
-              <button
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="flex items-center gap-2 rounded-full bg-white/20 px-3 py-1.5 text-sm backdrop-blur-sm transition-colors hover:bg-white/30"
-              >
-                <MdDelete
-                  className={`h-5 w-5 text-red-500 ${
-                    isDeleting ? "animate-spin" : ""
-                  }`}
-                />
-              </button>
-            )}
+            {post?.userId?._id &&
+              currentUser?.id &&
+              post.userId._id === currentUser?.id && (
+                <button
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="flex items-center gap-2 rounded-full bg-white/20 px-3 py-1.5 text-sm backdrop-blur-sm transition-colors hover:bg-white/30"
+                >
+                  <MdDelete
+                    className={`h-5 w-5 text-red-500 ${
+                      isDeleting ? "animate-spin" : ""
+                    }`}
+                  />
+                </button>
+              )}
           </div>
         </div>
       </div>
