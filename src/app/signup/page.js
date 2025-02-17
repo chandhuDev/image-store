@@ -8,13 +8,13 @@ import { userSignup } from "../../redux/slices/userSlice";
 import Spinner from "../../components/Home/Spinner";
 
 const Signup = () => {
-  const [formData, setFormData] = useState({
+  const [formState, setFormState] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
+    loading: false,
   });
-  const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   const dispatch = useDispatch();
@@ -27,37 +27,27 @@ const Signup = () => {
 
   useEffect(() => {
     if (mounted && currentUser) {
-      const redirect = () => {
-        router.replace("/");
-      };
-      redirect();
+      router.replace("/");
     }
   }, [currentUser, mounted, router]);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
   const validateForm = () => {
     if (
-      !formData.name ||
-      !formData.email ||
-      !formData.password ||
-      !formData.confirmPassword
+      !formState.name ||
+      !formState.email ||
+      !formState.password ||
+      !formState.confirmPassword
     ) {
       toast.error("Please fill in all fields");
       return false;
     }
 
-    if (formData.password !== formData.confirmPassword) {
+    if (formState.password !== formState.confirmPassword) {
       toast.error("Passwords do not match");
       return false;
     }
 
-    if (formData.password.length < 6) {
+    if (formState.password.length < 6) {
       toast.error("Password must be at least 6 characters long");
       return false;
     }
@@ -69,11 +59,10 @@ const Signup = () => {
 
     if (!validateForm()) return;
 
-    setLoading(true);
+    setFormState((prev) => ({ ...prev, loading: true }));
     try {
-      const { confirmPassword, ...signupData } = formData;
+      const { confirmPassword, loading, ...signupData } = formState;
       await dispatch(userSignup(signupData)).unwrap();
-      // Don't navigate here - let the useEffect handle it
     } catch (error) {
       const errorMessage =
         error === "Email already exists"
@@ -88,12 +77,11 @@ const Signup = () => {
         }, 2000);
       }
     } finally {
-      setLoading(false);
+      setFormState((prev) => ({ ...prev, loading: false }));
     }
   };
 
-  // Only render the component after mounting to prevent hydration issues
-  if (!mounted) {
+  if (typeof window === "undefined" || !mounted) {
     return null;
   }
 
@@ -121,8 +109,13 @@ const Signup = () => {
                   name="name"
                   type="text"
                   required
-                  value={formData.name}
-                  onChange={handleChange}
+                  value={formState.name}
+                  onChange={(e) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
                   className="appearance-none block w-full px-3 py-2.5 sm:py-3 border border-gray-300 rounded-lg shadow-sm text-sm sm:text-base placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Enter your full name"
                 />
@@ -143,8 +136,13 @@ const Signup = () => {
                   type="email"
                   autoComplete="email"
                   required
-                  value={formData.email}
-                  onChange={handleChange}
+                  value={formState.email}
+                  onChange={(e) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      email: e.target.value,
+                    }))
+                  }
                   className="appearance-none block w-full px-3 py-2.5 sm:py-3 border border-gray-300 rounded-lg shadow-sm text-sm sm:text-base placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Enter your email"
                 />
@@ -164,8 +162,13 @@ const Signup = () => {
                   name="password"
                   type="password"
                   required
-                  value={formData.password}
-                  onChange={handleChange}
+                  value={formState.password}
+                  onChange={(e) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      password: e.target.value,
+                    }))
+                  }
                   className="appearance-none block w-full px-3 py-2.5 sm:py-3 border border-gray-300 rounded-lg shadow-sm text-sm sm:text-base placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Create a password"
                 />
@@ -185,8 +188,13 @@ const Signup = () => {
                   name="confirmPassword"
                   type="password"
                   required
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
+                  value={formState.confirmPassword}
+                  onChange={(e) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      confirmPassword: e.target.value,
+                    }))
+                  }
                   className="appearance-none block w-full px-3 py-2.5 sm:py-3 border border-gray-300 rounded-lg shadow-sm text-sm sm:text-base placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Confirm your password"
                 />
@@ -196,10 +204,10 @@ const Signup = () => {
             <div>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={formState.loading}
                 className="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm sm:text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50"
               >
-                {loading ? <Spinner /> : "Sign up"}
+                {formState.loading ? <Spinner /> : "Sign up"}
               </button>
             </div>
           </form>

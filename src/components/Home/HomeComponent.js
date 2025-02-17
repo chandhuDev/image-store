@@ -18,18 +18,14 @@ export default function HomeComponent() {
 
   useEffect(() => {
     setIsClient(true);
-    // Get the previous path from localStorage
     const prevPath = localStorage.getItem("prevPath");
 
-    // Only fetch if we're not coming from a post detail page
     if (!prevPath?.startsWith("/post/") && !allPosts?.data) {
       dispatch(fetchAllPosts());
     }
 
-    // Store current path for next navigation
     localStorage.setItem("prevPath", pathname);
 
-    // Cleanup when component unmounts
     return () => {
       if (!pathname.startsWith("/post/")) {
         localStorage.removeItem("prevPath");

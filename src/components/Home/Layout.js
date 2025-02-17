@@ -10,9 +10,15 @@ import nature from "../../assets/nature.jpg";
 import animal from "../../assets/animal.jpg";
 import travel from "../../assets/travel.webp";
 import textures from "../../assets/textures.webp";
+import { logout } from "../../redux/slices/userSlice";
+import { useDispatch } from "react-redux";
+import { FaUserLarge } from "react-icons/fa6";
+import { useRouter } from "next/navigation";
 
 const Sidebar = ({ closeToggle }) => {
   const { currentUser } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const route = useRouter()
   const categories = [
     { name: "Nature", image: nature },
     { name: "Animal", image: animal },
@@ -82,13 +88,23 @@ const Sidebar = ({ closeToggle }) => {
       </div>
 
       {currentUser && (
-        <Link
-          href={`/post/679df41f6b81f15e5767ec23`}
-          className="mx-3 mb-4 mt-auto flex items-center gap-2 rounded-lg bg-white p-3 shadow-md transition-colors hover:bg-gray-50"
-          onClick={handleCloseSidebar}
-        >
-          <p className="truncate text-sm font-medium">{currentUser.name}</p>
-        </Link>
+        <>
+          <div className="mx-3 mb-4 mt-auto flex items-center gap-2 rounded-lg p-2 bg-white shadow-md transition-colors hover:bg-gray-50">
+            <FaUserLarge />
+            <p className="truncate text-sm font-medium ml-4 capitalize">
+              {currentUser.name}
+            </p>
+          </div>
+          <div
+            className="mx-3 mb-14 mt-auto flex items-center gap-2 rounded-lg p-2 bg-white shadow-md transition-colors hover:bg-gray-50 cursor-pointer"
+            onClick={() => {
+              dispatch(logout())
+              route.push('/login')
+            }}
+          >
+            <p className="truncate text-sm font-medium">Logout</p>
+          </div>
+        </>
       )}
     </div>
   );
@@ -99,12 +115,10 @@ const Layout = ({ children }) => {
 
   return (
     <div className="flex h-screen flex-col bg-gray-50 transition-all duration-300 ease-in-out md:flex-row">
-      {/* Desktop Sidebar */}
       <div className="hidden h-screen flex-shrink-0 md:flex">
         <Sidebar />
       </div>
 
-      {/* Mobile Header */}
       <div className="sticky top-0 z-20 flex items-center justify-between bg-white p-4 shadow-sm md:hidden">
         <button
           type="button"
@@ -116,10 +130,9 @@ const Layout = ({ children }) => {
         <Link href="/" className="text-lg font-bold">
           ImageShare
         </Link>
-        <div className="w-8" /> {/* Spacer for alignment */}
+        <div className="w-8" />
       </div>
 
-      {/* Mobile Sidebar */}
       {toggleSidebar && (
         <>
           <div
@@ -139,7 +152,6 @@ const Layout = ({ children }) => {
         </>
       )}
 
-      {/* Main Content */}
       <main className="flex-1 overflow-y-auto bg-gray-50 pb-4">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">{children}</div>
       </main>

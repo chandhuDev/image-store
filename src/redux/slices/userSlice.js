@@ -3,6 +3,31 @@ import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+const loadInitialState = () => {
+  if (typeof window !== "undefined") {
+    const storedUser = localStorage.getItem("imageUser");
+    try {
+      return {
+        currentUser: storedUser ? JSON.parse(storedUser) : null,
+        loading: false,
+        error: null,
+      };
+    } catch (error) {
+      console.error("Error parsing stored user:", error);
+      return {
+        currentUser: null,
+        loading: false,
+        error: null,
+      };
+    }
+  }
+  return {
+    currentUser: null,
+    loading: false,
+    error: null,
+  };
+};
+
 export const userLogin = createAsyncThunk(
   "user/login",
   async (credentials, { rejectWithValue }) => {
@@ -17,7 +42,7 @@ export const userLogin = createAsyncThunk(
       }
 
       localStorage.setItem("imageToken", data.token);
-      localStorage.setItem("imageUser", data.user);
+      localStorage.setItem("imageUser", JSON.stringify(data.user));
       document.cookie = `imageToken=${data.token}; path=/`;
 
       return data.user;
@@ -40,8 +65,7 @@ export const userSignup = createAsyncThunk(
       }
 
       localStorage.setItem("imageToken", data.token);
-      localStorage.setItem("imageUser", data.user);
-
+      localStorage.setItem("imageUser", JSON.stringify(data.user));
       document.cookie = `imageToken=${data.token}; path=/`;
 
       return data.user;
@@ -56,19 +80,18 @@ export const userSignup = createAsyncThunk(
 
 const userSlice = createSlice({
   name: "user",
-  initialState: {
-    currentUser: null,
-    loading: false,
-    error: null,
-  },
+  initialState: loadInitialState(),
   reducers: {
     logout: (state) => {
       state.currentUser = null;
       localStorage.removeItem("imageToken");
-      document.cookie = "imageToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+      localStorage.removeItem("imageUser");
+      document.cookie =
+        "imageToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
     },
     setUser: (state, action) => {
       state.currentUser = action.payload;
+      localStorage.setItem("imageUser", JSON.stringify(action.payload));
     },
   },
   extraReducers: (builder) => {

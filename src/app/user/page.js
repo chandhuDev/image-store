@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchUserPosts } from "../../redux/slices/postSlice";
 import MasonryLayout from "../../components/Home/MasonryLayout";
 import Spinner from "../../components/Home/Spinner";
+import Link from "next/link";
 
 const UserPage = () => {
   const [mounted, setMounted] = useState(false);
@@ -26,7 +27,13 @@ const UserPage = () => {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center px-4">
         <p className="text-center text-lg font-bold sm:text-xl">
-          Please log in to view your posts
+          Please
+          <Link href="/login">
+            <span className="cursor-pointer p-2 text-lg font-bold text-blue-500 hover:underline sm:text-xl md:text-2xl">
+              Login
+            </span>{" "}
+          </Link>
+          in to view your posts
         </p>
       </div>
     );
